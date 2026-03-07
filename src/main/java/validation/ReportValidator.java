@@ -1,4 +1,7 @@
-package domain;
+package validation;
+
+import domain.Report;
+import domain.ReportStatus;
 
 public class ReportValidator {
     public void validaterNewReport(String name) {

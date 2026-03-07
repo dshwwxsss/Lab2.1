@@ -1,4 +1,7 @@
-package domain;
+package service;
+
+import domain.*;
+import validation.ReportValidator;
 
 import java.util.*;
 
