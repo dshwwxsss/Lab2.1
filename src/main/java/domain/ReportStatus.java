@@ -1,7 +1,7 @@
 package domain;
 
 public enum ReportStatus {
-    NEW,
+    DRAFT,
     FINAL,
     SIGNED
 }
