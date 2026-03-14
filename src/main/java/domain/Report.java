@@ -1,5 +1,7 @@
 package domain;
 
+import validation.ReportValidator;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -73,10 +75,12 @@ public final class Report {
     }
 
     public void setExperimentId(long experimentId) {
+        ReportValidator.validateSampleAndExperiment(this.sampleId, experimentId);
         this.experimentId = experimentId;
     }
 
     public void setName(String name) {
+        ReportValidator.validateName(name);
         this.name = name;
     }
 
@@ -85,6 +89,7 @@ public final class Report {
     }
 
     public void setSampleId(long sampleId) {
+        ReportValidator.validateSampleAndExperiment(sampleId, this.experimentId);
         this.sampleId = sampleId;
     }
 

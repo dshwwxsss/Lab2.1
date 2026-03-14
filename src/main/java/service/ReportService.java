@@ -1,66 +1,50 @@
 package service;
 
-import domain.*;
-import validation.ReportValidator;
+import domain.Report;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ReportService {
-    private Set<Report> reports = new HashSet<>();
-    private Set<ReportLine> lines = new HashSet<>();
-    private long reportCounter = 1;
-    private long lineCounter = 1;
 
-    private ReportValidator validator = new ReportValidator();
+    private final Set<Report> reports = new HashSet<>();
 
-    public long createSampleReport(String name, long sampleId) {
-        validator.validaterNewReport(name);
-        Report r = new Report(reportCounter++, name, sampleId, "SYSTEM");
-        reports.add(r);
-        return r.getId();
+    public void add(Report report) {
+        reports.add(report);
     }
 
-    public long addLine(long reportId, String paramStr, double value, String unit) {
-        Report r = findReport(reportId);
-        validator.validateLineData(r, unit, value);
-        MeasurementParam p;
-        try {
-            p = MeasurementParam.valueOf(paramStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Параметр ~" + paramStr + "~ не поддерживается системой");
-        }
-        ReportLine line = new ReportLine(lineCounter++, reportId, p, value, unit);
-        lines.add(line);
-        return line.getId();
+    public Set<Report> getAll() {
+        return Collections.unmodifiableSet(reports);
     }
-    public Report findReport(long id) {
+
+    public Report getById(long id) {
+
         for (Report r : reports) {
-            if (r.getId() == id) return r;
+            if (r.getId() == id) {
+                return r;
+            }
         }
+
         return null;
     }
-    public void finalizeReport(long id){
-        Report r = findReport(id);
-        if (r != null) {
-            r.setStatus(ReportStatus.FINAL);
-        } else {
-            throw new RuntimeException("Отчёт с ID " + id + " не существует");
-        }
-    }
-    public void signReport(long id, String user) {
-        Report r = findReport(id);
-        validator.validateSigning(r);
-        r.setStatus(ReportStatus.SIGNED);
-        r.setSignedBy(user);
-    }
-    public Collection<Report> getAllReports() {
-        return reports;
+
+    public void remove(long id) {
+        reports.removeIf(r -> r.getId() == id);
     }
 
-    public void printLines(long reportId) {
-        for (ReportLine l : lines) {
-            if (l.getReportId() == reportId)
-                System.out.println(l.getId() + "|" + l.getReportId() + "|" + l.getValue());
+    public void update(long id, String newName) {
+
+        Report report = getById(id);
+
+        if (report != null) {
+            report.setName(newName);
+            report.setUpdatedAt(Instant.now());
         }
+    }
+
+    public long generateId() {
+        return System.currentTimeMillis() + reports.size();
     }
 }
