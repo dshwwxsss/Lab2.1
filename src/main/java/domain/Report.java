@@ -26,16 +26,16 @@ public final class Report {
     // Когда обновляли. Программа обновляет автоматически.
     private Instant updatedAt;
 
-    public Report(long id, String name, long sampleId, long experimentId, ReportStatus status, String ownerUsername, String signedBy, Instant createdAt, Instant updatedAt) {
+    public Report(long id, String name, long sampleId, long experimentId, String ownerUsername) {
         this.id = id;
         this.name = name;
         this.sampleId = sampleId;
         this.experimentId = experimentId;
-        this.status = status;
         this.ownerUsername = ownerUsername;
-        this.signedBy = signedBy;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.status = ReportStatus.DRAFT;
+        this.signedBy = null;
+        this.createdAt = Instant.now();
+        this.updatedAt = this.createdAt;
     }
 
     public Instant getCreatedAt() {
@@ -74,31 +74,28 @@ public final class Report {
         return updatedAt;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSampleId(long sampleId) {
+        this.sampleId = sampleId;
+    }
+
     public void setExperimentId(long experimentId) {
-        ReportValidator.validateSampleAndExperiment(this.sampleId, experimentId);
         this.experimentId = experimentId;
     }
 
-    public void setName(String name) {
-        ReportValidator.validateName(name);
-        this.name = name;
+    public void setStatus(ReportStatus status) {
+        this.status = status;
     }
 
     public void setOwnerUsername(String ownerUsername) {
         this.ownerUsername = ownerUsername;
     }
 
-    public void setSampleId(long sampleId) {
-        ReportValidator.validateSampleAndExperiment(sampleId, this.experimentId);
-        this.sampleId = sampleId;
-    }
-
     public void setSignedBy(String signedBy) {
         this.signedBy = signedBy;
-    }
-
-    public void setStatus(ReportStatus status) {
-        this.status = status;
     }
 
     public void setUpdatedAt(Instant updatedAt) {

@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public final class ReportLine {
     // Уникальный номер строки отчёта. Программа назначает сама.
-    private long id;
+    private final long id;
     // К какому отчёту относится строка (id отчёта).
     // Должен ссылаться на реально существующий Report.
     private long reportId;
@@ -18,16 +18,17 @@ public final class ReportLine {
     // Когда строку добавили/обновили. Программа ставит автоматически.
     private Instant updatedAt;
     // Когда строка создана. Программа ставит автоматически.
-    private Instant createdAt;
+    private final Instant createdAt;
 
-    public ReportLine(long id, long reportId, MeasurementParam param, double value, String unit, Instant updatedAt, Instant createdAt) {
+    public ReportLine(long id, long reportId, MeasurementParam param, double value, String unit) {
         this.id = id;
         this.reportId = reportId;
         this.param = param;
         this.value = value;
         this.unit = unit;
-        this.updatedAt = updatedAt;
-        this.createdAt = createdAt;
+        this.createdAt = Instant.now();
+        this.updatedAt = this.createdAt;
+
     }
 
     public long getId() {
@@ -58,10 +59,6 @@ public final class ReportLine {
         return createdAt;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public void setReportId(long reportId) {
         this.reportId = reportId;
     }
@@ -80,10 +77,6 @@ public final class ReportLine {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 
     @Override
