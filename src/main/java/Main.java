@@ -1,23 +1,34 @@
-import domain.Report;
-import domain.ReportStatus;
-import service.ReportService;
-
-import java.time.Instant;
+import cli.*;
+import cli.commands.*;
+import service.*;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args){
-        ReportService reportService = new ReportService();
-        long id = reportService.generateId();
-        Report report = new Report(
-                id,
-                "Test report",
-                1,
-                0,
-                ReportStatus.DRAFT,
-                "SYSTEM",
-                null,
-                Instant.now(),
-                Instant.now());
+    public static void main(String[] args) {
+        SampleService sampleService = new SampleService();
+        ReportService reportService = new ReportService(sampleService);
+        ReportLineService reportLineService = new ReportLineService(reportService);
+        Scanner scanner = new Scanner(System.in);
+        Environment env = new Environment(sampleService, reportService, reportLineService, scanner);
 
+        CommandRegistry registry = new CommandRegistry();
+
+        CommandInterpreter interpreter = new CommandInterpreter(registry, env, scanner);
+
+        registry.register("help", new HelpCommand(env, registry));
+        registry.register("exit", new ExitCommand(env, interpreter));
+        registry.register("sample_list", new SampleListCommand(env));
+        registry.register("rep_create_sample", new RepCreateSampleCommand(env));
+        registry.register("rep_addline", new RepAddLineCommand(env));
+        registry.register("rep_list", new RepListCommand(env));
+        registry.register("rep_show", new RepShowCommand(env));
+        registry.register("rep_lines", new RepLinesCommand(env));
+        registry.register("rep_updateline", new RepUpdatelineCommand(env));
+        registry.register("rep_delline", new RepDellineCommand(env));
+        registry.register("rep_finalize", new RepFinalizeCommand(env));
+        registry.register("rep_sign", new RepSignCommand(env));
+        registry.register("rep_export", new RepExportCommand(env));
+
+        interpreter.start();
     }
 }
