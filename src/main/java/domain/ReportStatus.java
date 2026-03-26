@@ -1,4 +1,4 @@
-package domain;
+package domain; //список статусов отчёта
 
 public enum ReportStatus {
     DRAFT,

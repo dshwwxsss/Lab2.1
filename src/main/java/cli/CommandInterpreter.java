@@ -1,4 +1,5 @@
-package cli;
+package cli; //цикл чтения команд и их выполнения
+
 
 import validation.ValidationException;
 
@@ -8,11 +9,12 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class CommandInterpreter {
-    private final CommandRegistry registry;
+    private final CommandRegistry registry; //словарь, где по имени команды лежит объект команды
     private final Environment env;
     private final Scanner scanner;
     private boolean running = true;
 
+    //конструктор сохраняет переданные зависимости
     public CommandInterpreter(CommandRegistry registry, Environment env, Scanner scanner) {
         this.registry = registry;
         this.env = env;

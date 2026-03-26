@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //показывает все строки отчёта
 
 import cli.Command;
 import cli.Environment;
@@ -37,6 +37,6 @@ public class RepLinesCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_lines <report_id> – строки отчёта";
+        return "строки отчёта";
     }
 }

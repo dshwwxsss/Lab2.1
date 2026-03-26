@@ -1,12 +1,12 @@
-package cli.commands;
+package cli.commands; //изменяет строку
 
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
 import java.util.List;
 
-public class RepUpdatelineCommand extends Command {
-    public RepUpdatelineCommand(Environment env) {
+public class RepUpdateLineCommand extends Command {
+    public RepUpdateLineCommand(Environment env) {
         super(env);
     }
 
@@ -27,6 +27,7 @@ public class RepUpdatelineCommand extends Command {
         }
     }
 
+    //выполнение команды
     @Override
     public void execute(List<String> args) throws ValidationException {
         long lineId = Long.parseLong(args.get(0));
@@ -39,6 +40,6 @@ public class RepUpdatelineCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_updateline <line_id> field=value ... – изменить строку";
+        return "изменить строку";
     }
 }

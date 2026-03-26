@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //показывает все образцы
 
 import cli.Command;
 import cli.Environment;
@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SampleListCommand extends Command {
     public SampleListCommand(Environment env) {
-        super(env);
+        super(env); //становится доступным поле env, унаследованное от Command
     }
 
     @Override

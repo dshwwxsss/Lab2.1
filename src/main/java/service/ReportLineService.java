@@ -1,4 +1,5 @@
-package service;
+package service; //хранит строки отчётов, умеет добавлять, изменять, удалять
+
 
 import domain.MeasurementParam;
 import domain.Report;
@@ -13,13 +14,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ReportLineService {
+public class ReportLineService { //поля
     private final Set<ReportLine> lines = new HashSet<>();
     private final ReportLineValidator validator;
     private final ReportService reportService;
 
-    public ReportLineService(ReportService reportService) {
-        this.reportService = reportService;
+    public ReportLineService(ReportService reportService) { //конструктор
+        this.reportService = reportService; //переданный объект
         this.validator = new ReportLineValidator(reportService);
     }
 
@@ -27,6 +28,7 @@ public class ReportLineService {
         return System.currentTimeMillis() + lines.size();
     }
 
+    //добавление строки с автоматическим ID
     public ReportLine addLine(long reportId, MeasurementParam param, double value, String unit)
         throws ValidationException {
         ReportLine line = new ReportLine(generateId(), reportId, param, value, unit);
@@ -34,19 +36,19 @@ public class ReportLineService {
         lines.add(line);
         return line;
     }
-
+//поиск строки по ID
     public Optional<ReportLine> getLine(long id) {
         return lines.stream()
                 .filter(l -> l.getId() == id)
                 .findFirst();
     }
-
+//все строки одного отчета
     public Set<ReportLine> getLinesByReport(long reportId) {
         return lines.stream()
                 .filter(l -> l.getReportId() == reportId)
                 .collect(Collectors.toSet());
     }
-
+//обновление строки
     public void updateLine(long id, String field, String value) throws ValidationException {
         ReportLine line = getLine(id)
                 .orElseThrow(() -> new ValidationException("Строка с id=" + id + " не найдена"));
@@ -60,6 +62,7 @@ public class ReportLineService {
         );
         updated.setUpdatedAt(Instant.now());
 
+        //оздаём копию, меняем её, а потом заменяем старую на новую
         switch (field) {
             case "param":
                 try {
@@ -88,7 +91,7 @@ public class ReportLineService {
         lines.remove(line);
         lines.add(updated);
     }
-
+//удаление строки
     public void deleteLine(long id) throws ValidationException {
         ReportLine line = getLine(id)
                 .orElseThrow(() -> new ValidationException("Строка с id=" + id + " не найдена"));

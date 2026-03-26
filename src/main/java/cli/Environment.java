@@ -1,4 +1,4 @@
-package cli;
+package cli; //контейнер с сервисами и Scanner для команд
 
 import service.ReportLineService;
 import service.ReportService;
@@ -10,7 +10,7 @@ public class Environment {
     private final SampleService sampleService;
     private final ReportService reportService;
     private final ReportLineService reportLineService;
-    private final Scanner scanner;
+    private final Scanner scanner; //чтобы читать ввод с клавиатур
 
     public Environment(SampleService sampleService, ReportService reportService, ReportLineService reportLineService, Scanner scanner) {
         this.sampleService = sampleService;

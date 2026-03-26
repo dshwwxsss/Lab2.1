@@ -1,4 +1,4 @@
-package service;
+package service; //хранит отчёты, умеет создавать, искать, менять статусы
 
 import domain.Report;
 import domain.ReportStatus;
@@ -12,16 +12,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ReportService {
-    private final Set<Report> reports = new HashSet<>();
+    private final Set<Report> reports = new HashSet<>(); //коллекция сов семи отчетами
     private final ReportValidator validator;
 
+    //в конструктор передаётся SampleService
     public ReportService(SampleService sampleService) {
         this.validator = new ReportValidator(sampleService);
     }
+
     private long generateId() {
         return System.currentTimeMillis() + reports.size();
     }
-
+//создание отчета
     public Report createReport(String name, long sampleId, long experimentId) throws ValidationException {
         Report report = new Report(generateId(), name, sampleId, experimentId, "SYSTEM");
         validator.validate(report);
@@ -39,12 +41,13 @@ public class ReportService {
         return new HashSet<>(reports);
     }
 
+    //получение отчётов по статусу
     public Set<Report> getReportsByStatus(ReportStatus status) {
         return reports.stream()
                 .filter(r -> r.getStatus() == status)
                 .collect(Collectors.toSet());
     }
-
+//FINAL
     public void finalizeReport(long id) throws ValidationException {
         Report report = getReport(id)
                 .orElseThrow(() -> new ValidationException("Отчёт с id=" + id + " не найден"));
@@ -56,6 +59,7 @@ public class ReportService {
         reports.add(report);
     }
 
+    //SIGNED
     public void signReport(long id) throws ValidationException {
         Report report = getReport(id)
                 .orElseThrow(() -> new ValidationException("Отчёт с id=" + id + " не найден"));

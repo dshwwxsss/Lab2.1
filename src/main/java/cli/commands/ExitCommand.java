@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //завершает программу
 
 import cli.Command;
 import cli.Environment;

@@ -1,11 +1,11 @@
-package domain;
+package domain; //описывает отчёт (ID, имя, образец, статус, даты)
 
 import validation.ReportValidator;
 
 import java.time.Instant;
 import java.util.Objects;
 
-public final class Report {
+public final class Report { //поля класса
     // Уникальный номер отчёта. Программа назначает сама.
     private final long id;
     // Название отчёта. Нельзя пустое. До 128 символов.
@@ -26,17 +26,18 @@ public final class Report {
     // Когда обновляли. Программа обновляет автоматически.
     private Instant updatedAt;
 
-    public Report(long id, String name, long sampleId, long experimentId, String ownerUsername) {
+    public Report(long id, String name, long sampleId, long experimentId, String ownerUsername) { //конструктор
         this.id = id;
         this.name = name;
         this.sampleId = sampleId;
         this.experimentId = experimentId;
         this.ownerUsername = ownerUsername;
-        this.status = ReportStatus.DRAFT;
+        this.status = ReportStatus.DRAFT; // новый отчёт всегда черновик
         this.signedBy = null;
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
     }
+//для id и createdAt сеттеров нет – их нельзя изменить после создания
 
     public Instant getCreatedAt() {
         return createdAt;
@@ -102,11 +103,22 @@ public final class Report {
         this.updatedAt = updatedAt;
     }
 
+    /*если два объекта имеют одинаковый equals(поля) и hashCode(число) возвращает true,
+    HashSet считает их одним и тем же объектом и не добавляет второй*/
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return id == report.id && sampleId == report.sampleId && experimentId == report.experimentId && Objects.equals(name, report.name) && status == report.status && Objects.equals(ownerUsername, report.ownerUsername) && Objects.equals(signedBy, report.signedBy) && Objects.equals(createdAt, report.createdAt) && Objects.equals(updatedAt, report.updatedAt);
+        return id == report.id; /*
+                && sampleId == report.sampleId
+                && experimentId == report.experimentId
+                && Objects.equals(name, report.name)
+                && status == report.status
+                && Objects.equals(ownerUsername, report.ownerUsername)
+                && Objects.equals(signedBy, report.signedBy)
+                && Objects.equals(createdAt, report.createdAt)
+                && Objects.equals(updatedAt, report.updatedAt); */
     }
 
     @Override
@@ -114,7 +126,8 @@ public final class Report {
         return Objects.hash(id, name, sampleId, experimentId, status, ownerUsername, signedBy, createdAt, updatedAt);
     }
 
-    @Override
+    //вывести отчёт (содержимое, а не его адрес в памяти) в консоль в процессе разработки
+    /*@Override
     public String toString() {
         return "Report{" +
                 "createdAt=" + createdAt +
@@ -127,5 +140,5 @@ public final class Report {
                 ", signedBy='" + signedBy + '\'' +
                 ", updatedAt=" + updatedAt +
                 '}';
-    }
+    } */
 }

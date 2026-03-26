@@ -1,4 +1,4 @@
-package validation;
+package validation; //проверяет, что строка заполнена правильно и отчёт – черновик
 
 import domain.MeasurementParam;
 import domain.Report;

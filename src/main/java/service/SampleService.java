@@ -1,4 +1,5 @@
-package service;
+package service; //хранит образцы, умеет их добавлять, искать, проверять
+
 
 import domain.Sample;
 import validation.SampleValidator;
@@ -9,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class SampleService {
-    private final Set<Sample> samples = new HashSet<>();
+    private final Set<Sample> samples = new HashSet<>(); //коллекция, в которой хранятся все образцы
 
     public SampleService() {
         try {
@@ -23,6 +24,7 @@ public class SampleService {
         return System.currentTimeMillis() + samples.size();
     }
 
+    //добавление образца
     public Sample addSample(String name) throws ValidationException {
         Sample sample = new Sample(generateId(), name);
         SampleValidator.validate(sample);

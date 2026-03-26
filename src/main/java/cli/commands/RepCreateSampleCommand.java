@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //создаёт отчёт по образцу (интерактивно запрашивает название)
 
 import cli.Command;
 import cli.Environment;
@@ -41,6 +41,6 @@ public class RepCreateSampleCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_create_sample <sample_id> – создать отчёт по образцу (интерактивно)";
+        return "создать отчёт по образцу (интерактивно)";
     }
 }

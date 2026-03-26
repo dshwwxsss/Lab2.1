@@ -1,4 +1,4 @@
-package domain;
+package domain; //описывает образец (ID, имя)
 
 import java.util.Objects;
 
@@ -10,7 +10,7 @@ public final class Sample {
         this.id = id;
         this.name = name;
     }
-
+//читать, но не менять
     public long getId() {
         return id;
     }
@@ -31,3 +31,6 @@ public final class Sample {
         return Objects.hashCode(id);
     }
 }
+
+//здесь нет валидации (название не проверяется на пустоту и длину,
+// потому что в нашем коде мы создаём образцы вручную с корректными именами

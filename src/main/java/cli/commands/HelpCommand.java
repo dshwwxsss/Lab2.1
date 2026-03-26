@@ -1,10 +1,11 @@
-package cli.commands;
+package cli.commands; //выводит список команд и их справку
 
 import cli.Command;
 import cli.Environment;
 import cli.CommandRegistry;
 import validation.ValidationException;
 import java.util.List;
+import java.util.Map;
 
 public class HelpCommand extends Command {
     private final CommandRegistry registry;
@@ -13,13 +14,12 @@ public class HelpCommand extends Command {
         super(env);
         this.registry = registry;
     }
-
     @Override
     public void execute(List<String> args) throws ValidationException {
         System.out.println("Доступные команды:");
-        for (var entry : registry.getAll().entrySet()) {
-            System.out.printf("  %-20s %s%n", entry.getKey(), entry.getValue().getHelp());
-        }
+        registry.getAll().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> System.out.printf("  %-20s %s%n", entry.getKey(), entry.getValue().getHelp()));
     }
 
     @Override
