@@ -1,4 +1,4 @@
-package validation;
+package validation; //проверяет, что отчёт заполнен правильно и можно менять статус
 
 import domain.Report;
 import domain.ReportStatus;

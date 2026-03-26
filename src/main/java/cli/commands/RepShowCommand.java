@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //показывает подробную информацию об одном отчёте
 
 import cli.Command;
 import cli.Environment;
@@ -39,6 +39,6 @@ public class RepShowCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_show <report_id> – карточка отчёта";
+        return "карточка отчёта";
     }
 }

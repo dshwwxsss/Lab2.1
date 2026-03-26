@@ -4,17 +4,17 @@ import service.*;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) { //создание сервисов
         SampleService sampleService = new SampleService();
         ReportService reportService = new ReportService(sampleService);
         ReportLineService reportLineService = new ReportLineService(reportService);
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in); //чтение ввода с клавиатуры
         Environment env = new Environment(sampleService, reportService, reportLineService, scanner);
 
-        CommandRegistry registry = new CommandRegistry();
+        CommandRegistry registry = new CommandRegistry(); //пустой словарь, в который мы будем добавлять команды
+        CommandInterpreter interpreter = new CommandInterpreter(registry, env, scanner); //создаётся с реестром
 
-        CommandInterpreter interpreter = new CommandInterpreter(registry, env, scanner);
-
+        //регистрация команд
         registry.register("help", new HelpCommand(env, registry));
         registry.register("exit", new ExitCommand(env, interpreter));
         registry.register("sample_list", new SampleListCommand(env));
@@ -23,12 +23,12 @@ public class Main {
         registry.register("rep_list", new RepListCommand(env));
         registry.register("rep_show", new RepShowCommand(env));
         registry.register("rep_lines", new RepLinesCommand(env));
-        registry.register("rep_updateline", new RepUpdatelineCommand(env));
+        registry.register("rep_updateline", new RepUpdateLineCommand(env));
         registry.register("rep_delline", new RepDellineCommand(env));
         registry.register("rep_finalize", new RepFinalizeCommand(env));
         registry.register("rep_sign", new RepSignCommand(env));
         registry.register("rep_export", new RepExportCommand(env));
 
-        interpreter.start();
+        interpreter.start(); //запуск интерпретатора
     }
 }

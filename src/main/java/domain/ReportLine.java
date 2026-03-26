@@ -1,9 +1,9 @@
-package domain;
+package domain; //описывает одну строку отчёта (параметр, значение, единицы)
 
 import java.time.Instant;
 import java.util.Objects;
 
-public final class ReportLine {
+public final class ReportLine { //поля
     // Уникальный номер строки отчёта. Программа назначает сама.
     private final long id;
     // К какому отчёту относится строка (id отчёта).
@@ -20,6 +20,7 @@ public final class ReportLine {
     // Когда строка создана. Программа ставит автоматически.
     private final Instant createdAt;
 
+    //конструктор принимает все данные, которые нельзя вычислить автоматически
     public ReportLine(long id, long reportId, MeasurementParam param, double value, String unit) {
         this.id = id;
         this.reportId = reportId;
@@ -30,7 +31,7 @@ public final class ReportLine {
         this.updatedAt = this.createdAt;
 
     }
-
+//для id и createdAt сеттеров нет – они неизменны
     public long getId() {
         return id;
     }
@@ -83,11 +84,17 @@ public final class ReportLine {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ReportLine line = (ReportLine) o;
-        return id == line.id && reportId == line.reportId && Double.compare(value, line.value) == 0 && param == line.param && Objects.equals(unit, line.unit) && Objects.equals(updatedAt, line.updatedAt) && Objects.equals(createdAt, line.createdAt);
+        return id == line.id /*
+                && reportId == line.reportId
+                && Double.compare(value, line.value) == 0
+                && param == line.param
+                && Objects.equals(unit, line.unit)
+                && Objects.equals(updatedAt, line.updatedAt)
+                && Objects.equals(createdAt, line.createdAt)*/;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, reportId, param, value, unit, updatedAt, createdAt);
+        return Objects.hash(id/*, reportId, param, value, unit, updatedAt, createdAt*/);
     }
 }

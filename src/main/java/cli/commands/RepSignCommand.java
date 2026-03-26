@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //подписывает отчёт (статус SIGNED)
 
 import cli.Command;
 import cli.Environment;
@@ -31,6 +31,6 @@ public class RepSignCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_sign <report_id> – подписать отчёт (SIGNED)";
+        return "подписать отчёт (SIGNED)";
     }
 }

@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //переводит отчёт в статус FINAL
 
 import cli.Command;
 import cli.Environment;
@@ -31,6 +31,6 @@ public class RepFinalizeCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_finalize <report_id> – перевести отчёт в FINAL";
+        return "перевести отчёт в FINAL";
     }
 }

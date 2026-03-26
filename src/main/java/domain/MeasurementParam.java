@@ -1,4 +1,4 @@
-package domain;
+package domain; //список возможных параметров
 
 public enum MeasurementParam {
     PH,

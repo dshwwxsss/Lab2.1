@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //выводит отчёт в текстовом виде (экспорт)
 
 import cli.Command;
 import cli.Environment;
@@ -50,6 +50,6 @@ public class RepExportCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_export <report_id> – экспорт отчёта в текст";
+        return "экспорт отчёта в текст";
     }
 }

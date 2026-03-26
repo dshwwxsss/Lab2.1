@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //добавляет строку в отчёт (интерактивно)
 
 import cli.Command;
 import cli.Environment;
@@ -60,6 +60,6 @@ public class RepAddLineCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_addline <report_id> – добавить строку в отчёт (интерактивно)";
+        return "добавить строку в отчёт (интерактивно)";
     }
 }

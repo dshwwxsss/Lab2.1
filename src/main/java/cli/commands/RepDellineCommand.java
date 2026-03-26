@@ -1,5 +1,4 @@
-package cli.commands;
-
+package cli.commands; //удаляет строку
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
@@ -31,6 +30,6 @@ public class RepDellineCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_delline <line_id> – удалить строку";
+        return "удалить строку";
     }
 }

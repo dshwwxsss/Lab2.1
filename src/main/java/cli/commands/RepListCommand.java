@@ -1,4 +1,4 @@
-package cli.commands;
+package cli.commands; //показывает список отчётов, можно отфильтровать по статусу
 
 import cli.Command;
 import cli.Environment;
@@ -44,6 +44,6 @@ public class RepListCommand extends Command {
 
     @Override
     public String getHelp() {
-        return "rep_list [--status DRAFT|FINAL|SIGNED] – список отчётов";
+        return "список отчётов (с фильтром по статусу)";
     }
 }

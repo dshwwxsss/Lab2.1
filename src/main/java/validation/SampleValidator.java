@@ -1,4 +1,4 @@
-package validation;
+package validation; //проверяет, что образец заполнен правильно
 
 import domain.Sample;
 
