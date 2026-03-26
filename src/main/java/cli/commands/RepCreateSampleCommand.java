@@ -29,11 +29,20 @@ public class RepCreateSampleCommand extends Command {
             throw new ValidationException("Образец с id=" + sampleId + " не найден");
         }
 
-        System.out.print("Название отчёта: ");
-        String name = env.getScanner().nextLine().trim();
-        if (name.isEmpty()) {
-            throw new ValidationException("Название не может быть пустым");
+        String name = null;
+        while (name == null) {
+            System.out.print("Название отчёта: ");
+            String input = env.getScanner().nextLine().trim();
+
+            if (input.isEmpty()) {
+                System.out.println("Ошибка: Название не может быть пустым");
+
+        }  else if (input.length() > 128) {
+            System.out.println("Ошибка: Название слишком длинное (макс. 128 символов)");
+        } else {
+            name = input;
         }
+    }
 
         var report = env.getReportService().createReport(name, sampleId, 0);
         System.out.println("OK report_id=" + report.getId());
