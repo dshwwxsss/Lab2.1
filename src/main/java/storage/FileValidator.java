@@ -2,12 +2,8 @@ package storage;
 
 import domain.*;
 import validation.ValidationException;
-
 import java.util.*;
 
-/**
- * Валидатор для проверки загруженных из файла данных.
- */
 public class FileValidator {
 
     public void validate(FileStorage.LoadedData data) throws ValidationException {
@@ -15,22 +11,17 @@ public class FileValidator {
         Set<Report> reports = data.reports;
         Set<ReportLine> lines = data.lines;
 
-        // 1. Проверка: нет дубликатов ID
+        //нет дубликатов ID
         checkUniqueSampleIds(samples);
         checkUniqueReportIds(reports);
         checkUniqueReportLineIds(lines);
-
-        // 2. Проверка: обязательные поля не пустые
+        //обязательные поля не пустые
         validateRequiredFields(samples, reports, lines);
-
-        // 3. Проверка целостности: связи между сущностями
+        //связи между сущностями
         validateReferences(reports, lines, samples);
-
-        // 4. Проверка диапазонов значений
+        //диапазонов значений
         validateValueRanges(lines);
     }
-
-    // Проверка уникальности ID для Sample
     private void checkUniqueSampleIds(Set<Sample> samples) throws ValidationException {
         Set<Long> ids = new HashSet<>();
         for (Sample s : samples) {
@@ -41,8 +32,6 @@ public class FileValidator {
             }
         }
     }
-
-    // Проверка уникальности ID для Report
     private void checkUniqueReportIds(Set<Report> reports) throws ValidationException {
         Set<Long> ids = new HashSet<>();
         for (Report r : reports) {
@@ -53,8 +42,6 @@ public class FileValidator {
             }
         }
     }
-
-    // Проверка уникальности ID для ReportLine
     private void checkUniqueReportLineIds(Set<ReportLine> lines) throws ValidationException {
         Set<Long> ids = new HashSet<>();
         for (ReportLine l : lines) {
@@ -65,8 +52,6 @@ public class FileValidator {
             }
         }
     }
-
-    // Проверка обязательных полей
     private void validateRequiredFields(Set<Sample> samples, Set<Report> reports, Set<ReportLine> lines)
             throws ValidationException {
 
@@ -77,7 +62,6 @@ public class FileValidator {
                 );
             }
         }
-
         for (Report r : reports) {
             if (r.getName() == null || r.getName().trim().isEmpty()) {
                 throw new ValidationException(
@@ -91,7 +75,6 @@ public class FileValidator {
                 );
             }
         }
-
         for (ReportLine l : lines) {
             if (l.getParam() == null) {
                 throw new ValidationException(
@@ -105,8 +88,6 @@ public class FileValidator {
             }
         }
     }
-
-    // Проверка связей между сущностями
     private void validateReferences(Set<Report> reports, Set<ReportLine> lines, Set<Sample> samples)
             throws ValidationException {
 
@@ -121,7 +102,6 @@ public class FileValidator {
                 );
             }
         }
-
         Set<Long> sampleIds = new HashSet<>();
         for (Sample s : samples) sampleIds.add(s.getId());
 
@@ -134,8 +114,6 @@ public class FileValidator {
             }
         }
     }
-
-    // Проверка диапазонов значений
     private void validateValueRanges(Set<ReportLine> lines) throws ValidationException {
         for (ReportLine l : lines) {
             if (l.getParam() == MeasurementParam.PH && (l.getValue() < 0 || l.getValue() > 14)) {
