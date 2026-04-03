@@ -1,7 +1,5 @@
 package cli.commands; //создаёт отчёт по образцу (интерактивно запрашивает название)
 
-import cli.Command;
-import cli.Environment;
 import validation.ValidationException;
 import java.util.List;
 

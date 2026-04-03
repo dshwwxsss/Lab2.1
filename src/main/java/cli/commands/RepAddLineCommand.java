@@ -1,7 +1,5 @@
 package cli.commands;
 
-import cli.Command;
-import cli.Environment;
 import domain.MeasurementParam;
 import domain.ReportLine;
 import domain.ReportStatus;

@@ -1,7 +1,5 @@
 package cli.commands; //показывает подробную информацию об одном отчёте
 
-import cli.Command;
-import cli.Environment;
 import validation.ValidationException;
 import java.util.List;
 

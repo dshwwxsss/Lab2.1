@@ -1,4 +1,4 @@
-package cli; //словарь команд (имя - объект, который ее выполняет)
+package cli.commands; //словарь команд (имя - объект, который ее выполняет)
 
 
 import java.util.HashMap;

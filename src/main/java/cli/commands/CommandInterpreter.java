@@ -1,4 +1,4 @@
-package cli; //цикл чтения команд и их выполнения
+package cli.commands; //цикл чтения команд и их выполнения
 
 
 import validation.ValidationException;

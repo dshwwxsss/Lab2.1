@@ -1,4 +1,4 @@
-package cli; //контейнер с сервисами и Scanner для команд
+package cli.commands; //контейнер с сервисами и Scanner для команд
 
 import service.ReportLineService;
 import service.ReportService;

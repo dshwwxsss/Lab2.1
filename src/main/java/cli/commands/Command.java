@@ -1,4 +1,4 @@
-package cli; //шаблон для всех команд
+package cli.commands; //шаблон для всех команд
 
 import validation.ValidationException;
 

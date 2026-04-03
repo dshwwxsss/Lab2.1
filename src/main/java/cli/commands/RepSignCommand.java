@@ -1,7 +1,5 @@
 package cli.commands; //подписывает отчёт (статус SIGNED)
 
-import cli.Command;
-import cli.Environment;
 import validation.ValidationException;
 import java.util.List;
 

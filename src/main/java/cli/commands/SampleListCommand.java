@@ -1,7 +1,5 @@
 package cli.commands; //показывает все образцы
 
-import cli.Command;
-import cli.Environment;
 import validation.ValidationException;
 import domain.Sample;
 import java.util.List;

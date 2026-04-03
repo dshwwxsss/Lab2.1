@@ -1,7 +1,5 @@
 package cli.commands; //выводит отчёт в текстовом виде (экспорт)
 
-import cli.Command;
-import cli.Environment;
 import validation.ValidationException;
 
 import java.time.ZoneId;

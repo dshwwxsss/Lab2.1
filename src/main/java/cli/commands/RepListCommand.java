@@ -1,7 +1,5 @@
 package cli.commands; //показывает список отчётов, можно отфильтровать по статусу
 
-import cli.Command;
-import cli.Environment;
 import domain.ReportStatus;
 import validation.ValidationException;
 import java.util.List;

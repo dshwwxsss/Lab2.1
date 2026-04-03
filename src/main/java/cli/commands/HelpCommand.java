@@ -1,8 +1,5 @@
 package cli.commands; //выводит список команд и их справку
 
-import cli.Command;
-import cli.Environment;
-import cli.CommandRegistry;
 import validation.ValidationException;
 import java.util.List;
 import java.util.Map;
