@@ -104,4 +104,14 @@ public class ReportLineService { //поля
         }
         lines.remove(line);
     }
+    // Метод для загрузки из файла: заменяет все строки новыми
+    public void replaceAll(Set<ReportLine> newLines) {
+        lines.clear();
+        lines.addAll(newLines);
+    }
+
+    // Геттер для получения всех строк (нужен для команды save)
+    public Set<ReportLine> getAllLines() {
+        return new HashSet<>(lines);
+    }
 }

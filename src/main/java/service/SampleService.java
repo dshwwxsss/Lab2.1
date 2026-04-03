@@ -44,4 +44,9 @@ public class SampleService {
     public Set<Sample> getSamples() {
         return new HashSet<>(samples);
     }
+    // Метод для загрузки из файла: заменяет все образцы новыми
+    public void replaceAll(Set<Sample> newSamples) {
+        samples.clear();
+        samples.addAll(newSamples);
+    }
 }

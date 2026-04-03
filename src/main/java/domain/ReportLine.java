@@ -18,7 +18,7 @@ public final class ReportLine { //поля
     // Когда строку добавили/обновили. Программа ставит автоматически.
     private Instant updatedAt;
     // Когда строка создана. Программа ставит автоматически.
-    private final Instant createdAt;
+    private Instant createdAt;
 
     //конструктор принимает все данные, которые нельзя вычислить автоматически
     public ReportLine(long id, long reportId, MeasurementParam param, double value, String unit) {
@@ -74,6 +74,10 @@ public final class ReportLine { //поля
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setUpdatedAt(Instant updatedAt) {

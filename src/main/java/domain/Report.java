@@ -22,7 +22,7 @@ public final class Report { //поля класса
     // Кто подписал (логин). Может быть null, если ещё не подписан.
     private String signedBy;
     // Когда создали. Программа ставит автоматически.
-    private final Instant createdAt;
+    private Instant createdAt;
     // Когда обновляли. Программа обновляет автоматически.
     private Instant updatedAt;
 
@@ -97,6 +97,10 @@ public final class Report { //поля класса
 
     public void setSignedBy(String signedBy) {
         this.signedBy = signedBy;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setUpdatedAt(Instant updatedAt) {

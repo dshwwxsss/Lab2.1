@@ -68,4 +68,9 @@ public class ReportService {
         report.setSignedBy("SYSTEM");
         report.setUpdatedAt(Instant.now());
     }
+    // Метод для загрузки из файла: заменяет все отчёты новыми
+    public void replaceAll(Set<Report> newReports) {
+        reports.clear();
+        reports.addAll(newReports);
+    }
 }
