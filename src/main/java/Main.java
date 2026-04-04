@@ -28,7 +28,7 @@ public class Main {
         registry.register("rep_finalize", new RepFinalizeCommand(env));
         registry.register("rep_sign", new RepSignCommand(env));
         registry.register("rep_export", new RepExportCommand(env));
-// ЭТАП 3: Команды сохранения/загрузки ===
+// 3 этап
         registry.register("save", new SaveCommand(env));
         registry.register("load", new LoadCommand(env));
 

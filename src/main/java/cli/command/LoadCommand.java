@@ -20,7 +20,7 @@ public class LoadCommand extends Command {
     }
 
     @Override
-    public void checkArgs(List<String> args) throws ValidationException {
+    public void checkArgs(List<String> args) throws ValidationException { //путь к файлу
         if (args.size() != 1) {
             throw new ValidationException("Использование: load <путь_к_файлу>");
         }
@@ -28,7 +28,7 @@ public class LoadCommand extends Command {
 
     @Override
     public void execute(List<String> args) throws ValidationException {
-        String path = args.get(0);
+        String path = args.get(0); //берёт первый элемент списка
         try {
             FileStorage.LoadedData loaded = fileStorage.loadAll(path);
 

@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Locale;
 
-//класс для сохранения и загрузки данных в CSV-файл
+//Класс для сохранения и загрузки данных в CSV-файл
 public class FileStorage {
     public void saveAll(String path,
                         Set<Sample> samples,
