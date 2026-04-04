@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Locale;
 
-//Класс для сохранения и загрузки данных в CSV-файл.
+//класс для сохранения и загрузки данных в CSV-файл
 public class FileStorage {
     public void saveAll(String path,
                         Set<Sample> samples,
@@ -28,7 +28,7 @@ public class FileStorage {
                         escapeCsv(r.getName()),
                         r.getSampleId(),
                         r.getExperimentId(),
-                        r.getStatus().name(), // enum превращаем в строку "DRAFT"
+                        CsvFormat.formatEnum(r.getStatus()), // enum превращаем в строку "DRAFT"
                         escapeCsv(r.getOwnerUsername()),
                         escapeCsv(r.getSignedBy()),
                         CsvFormat.formatInstant(r.getCreatedAt()), // дату в строку
@@ -43,7 +43,7 @@ public class FileStorage {
                 writer.printf(Locale.US, "%d,%d,%s,%.2f,%s,%s,%s%n",
                         l.getId(),
                         l.getReportId(),
-                        l.getParam().name(),
+                        CsvFormat.formatEnum(l.getParam()),
                         l.getValue(),  // теперь 7.12, а не 7,12
                         escapeCsv(l.getUnit()),
                         CsvFormat.formatInstant(l.getCreatedAt()),
