@@ -1,4 +1,4 @@
-package command; //изменяет строку
+package cli.command; //изменяет строку
 
 import cli.Command;
 import cli.Environment;

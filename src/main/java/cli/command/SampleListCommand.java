@@ -1,4 +1,4 @@
-package command; //показывает все образцы
+package cli.command; //показывает все образцы
 
 import cli.Command;
 import cli.Environment;

@@ -1,4 +1,4 @@
-package command; //подписывает отчёт (статус SIGNED)
+package cli.command; //подписывает отчёт (статус SIGNED)
 
 import cli.Command;
 import cli.Environment;

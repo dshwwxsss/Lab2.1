@@ -1,4 +1,4 @@
-package command; //выводит список команд и их справку
+package cli.command; //выводит список команд и их справку
 
 import cli.Command;
 import cli.CommandRegistry;

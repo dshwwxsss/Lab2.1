@@ -1,5 +1,5 @@
 import cli.*;
-import command.*;
+import cli.command.*;
 import service.*;
 import java.util.Scanner;
 

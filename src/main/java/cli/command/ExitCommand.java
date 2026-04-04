@@ -1,4 +1,4 @@
-package command; //завершает программу
+package cli.command; //завершает программу
 
 import cli.Command;
 import cli.CommandInterpreter;

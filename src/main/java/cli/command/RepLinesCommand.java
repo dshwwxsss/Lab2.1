@@ -1,4 +1,4 @@
-package command; //показывает все строки отчёта
+package cli.command; //показывает все строки отчёта
 
 import cli.Command;
 import cli.Environment;

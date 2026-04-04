@@ -1,4 +1,4 @@
-package command; //переводит отчёт в статус FINAL
+package cli.command; //переводит отчёт в статус FINAL
 
 import cli.Command;
 import cli.Environment;

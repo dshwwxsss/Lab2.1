@@ -1,4 +1,4 @@
-package command; //создаёт отчёт по образцу (интерактивно запрашивает название)
+package cli.command; //создаёт отчёт по образцу (интерактивно запрашивает название)
 
 import cli.Command;
 import cli.Environment;

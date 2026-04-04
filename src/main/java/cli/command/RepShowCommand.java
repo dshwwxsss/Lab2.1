@@ -1,4 +1,4 @@
-package command; //показывает подробную информацию об одном отчёте
+package cli.command; //показывает подробную информацию об одном отчёте
 
 import cli.Command;
 import cli.Environment;

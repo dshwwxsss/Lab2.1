@@ -1,4 +1,4 @@
-package command; //выводит отчёт в текстовом виде (экспорт)
+package cli.command; //выводит отчёт в текстовом виде (экспорт)
 
 import cli.Command;
 import cli.Environment;

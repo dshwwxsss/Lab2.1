@@ -1,4 +1,4 @@
-package command;
+package cli.command;
 
 import cli.Command;
 import cli.Environment;

@@ -1,4 +1,4 @@
-package command; //удаляет строку
+package cli.command; //удаляет строку
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;

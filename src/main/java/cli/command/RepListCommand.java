@@ -1,4 +1,4 @@
-package command; //показывает список отчётов, можно отфильтровать по статусу
+package cli.command; //показывает список отчётов, можно отфильтровать по статусу
 
 import cli.Command;
 import cli.Environment;
