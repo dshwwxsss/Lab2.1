@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="javafx.controller.ReportTableController"
+            prefWidth="900" prefHeight="600">
+
+    <!-- Панель кнопок сверху -->
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10;">
+            <Button text="➕ Добавить" onAction="#handleAdd"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+            <Button text="✏️ Изменить" onAction="#handleEdit"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+            <Button text="🗑️ Удалить" onAction="#handleDelete"
+                    style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
+            <Button text="🔄 Refresh" onAction="#refreshTable"
+                    style="-fx-background-color: #FF9800; -fx-text-fill: white;"/>
+            <Button text="💾 Сохранить" onAction="#handleSave"
+                    style="-fx-background-color: #9C27B0; -fx-text-fill: white;"/>
+        </HBox>
+    </top>
+
+    <!-- Таблица в центре -->
+    <center>
+        <TableView fx:id="tableView">
+            <columns>
+                <!-- Добавлены fx:id для каждой колонки -->
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="nameColumn" text="Название" prefWidth="250"/>
+                <TableColumn fx:id="sampleColumn" text="Образец" prefWidth="200"/>
+                <TableColumn fx:id="statusColumn" text="Статус" prefWidth="120"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+    </center>
+
+    <!-- Статус бар снизу -->
+    <bottom>
+        <VBox>
+            <ProgressBar fx:id="progressBar" progress="0" maxWidth="Infinity"/>
+            <Label text="Lab 2.1 - JavaFX UI" style="-fx-padding: 5;"/>
+        </VBox>
+    </bottom>
+
+</BorderPane>
