@@ -8,6 +8,8 @@ import java.util.Locale;
 
 //Класс для сохранения и загрузки данных в CSV-файл
 public class FileStorage {
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final int MAX_LINES = 100_000;
     public void saveAll(String path,
                         Set<Sample> samples,
                         Set<Report> reports,
@@ -67,6 +69,22 @@ public class FileStorage {
     }
 
     public LoadedData loadAll(String path) throws IOException, ValidationException {
+        File file = new File(path);
+        if (!file.exists()) {
+            throw new ValidationException("Ошибка: файл не найден: " + path);
+        }
+
+        if (!file.isFile()) {
+            throw new ValidationException("Не является обычным файлом: " + path);
+        }
+
+        if (file.length() > MAX_FILE_SIZE) {
+            throw new ValidationException(
+                    "Файл слишком большой (" + file.length() + " байт). " +
+                            "Максимальный размер: " + MAX_FILE_SIZE + " байт"
+            );
+        }
+
         Set<Sample> samples = new HashSet<>();
         Set<Report> reports = new HashSet<>();
         Set<ReportLine> lines = new HashSet<>();
@@ -90,14 +108,45 @@ public class FileStorage {
                 }
                 String[] parts = parseCsvLine(line);
                 switch (currentSection) {
-                    case "SAMPLES" -> samples.add(parseSample(parts));
-                    case "REPORTS" -> reports.add(parseReport(parts));
-                    case "REPORT_LINES" -> lines.add(parseReportLine(parts));
+                    case "SAMPLES" -> {
+                        try {
+                            samples.add(parseSample(parts));
+                        } catch (Exception e) {
+                            System.err.println("❌ Ошибка парсинга SAMPLE: " + Arrays.toString(parts));
+                            e.printStackTrace();
+                        }
+                    }
+                    case "REPORTS" -> {
+                        try {
+                            System.out.println("🔍 Парсим REPORT: " + Arrays.toString(parts));
+                            reports.add(parseReport(parts));
+                            System.out.println("✅ REPORT добавлен");
+                        } catch (Exception e) {
+                            System.err.println("❌ Ошибка парсинга REPORT: " + Arrays.toString(parts));
+                            e.printStackTrace();
+                        }
+                    }
+                    case "REPORT_LINES" -> {
+                        try {
+                            System.out.println("🔍 Парсим REPORT_LINE: " + Arrays.toString(parts));
+                            lines.add(parseReportLine(parts));
+                            System.out.println("✅ REPORT_LINE добавлен");
+                        } catch (Exception e) {
+                            System.err.println("❌ Ошибка парсинга REPORT_LINE: " + Arrays.toString(parts));
+                            e.printStackTrace();
+                        }
+                    }
                     default -> {
                         // неизвестная секция — игнорируем
                     }
                 }
             }
+        }
+        if (samples.isEmpty() && reports.isEmpty() && lines.isEmpty()) {
+            throw new ValidationException(
+                    "Файл не содержит данных в формате Lab2.1. " +
+                            "Проверьте, что файл имеет секции #SAMPLES, #REPORTS, #REPORT_LINES"
+            );
         }
 
         return new LoadedData(samples, reports, lines);

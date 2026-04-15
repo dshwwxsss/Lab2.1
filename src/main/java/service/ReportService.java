@@ -68,6 +68,11 @@ public class ReportService {
         report.setSignedBy("SYSTEM");
         report.setUpdatedAt(Instant.now());
     }
+
+    public void deleteReport(long id) {
+        reports.removeIf(r -> r.getId() == id);
+    }
+
     // Метод для загрузки из файла: заменяет все отчёты новыми
     public void replaceAll(Set<Report> newReports) {
         reports.clear();
