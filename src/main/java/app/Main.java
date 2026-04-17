@@ -34,12 +34,6 @@ public class Main {
         registry.register("save", new SaveCommand(env));
         registry.register("load", new LoadCommand(env));
 
-        // 4 этап
-        if (args.length > 0 && args[0].equals("--gui")) {
-            // Запускаем JavaFX и передаём ему env
-            javafx.Launcher.main(args);
-        } else {
             interpreter.start(); //запуск интерпретатора
-        }
     }
 }
