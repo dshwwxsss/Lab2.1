@@ -217,14 +217,22 @@ public class ReportTableController {
     }
 
     @FXML private void handleDeleteLine() {
-        Report r = getSelectedReport();
-        if (r == null) return;
-        var lines = reportLineService.getLinesByReport(r.getId());
-        if (lines.isEmpty()) { showAlert("Ошибка", "Нет строк"); return; }
-        var line = showLineChoice(lines, "Выберите строку:");
+        Report report = getSelectedReport();
+        if (report == null) return;
+        Set<ReportLine> lines = reportLineService.getLinesByReport(report.getId());
+        if (lines.isEmpty()) {
+            showAlert("Ошибка", "У этого отчёта нет строк");
+            return;
+        }
+        ReportLine line = showLineChoice(lines, "Выберите строку для удаления:");
         if (line == null) return;
-        try { reportLineService.deleteLine(line.getId()); refreshTable(); showAlert("Успех", "Строка удалена"); }
-        catch (ValidationException e) { showAlert("Ошибка", e.getMessage()); }
+        try {
+            reportLineService.deleteLine(line.getId());
+            refreshTable();
+            showAlert("Успех", "Строка удалена");
+        } catch (ValidationException e) {
+            showAlert("Ошибка", e.getMessage());
+        }
     }
 
     @FXML private void handleFinalize() {
