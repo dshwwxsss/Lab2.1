@@ -14,13 +14,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-
     <dependencies>
+        <!-- JavaFX Controls -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>17.0.14</version>
         </dependency>
+        <!-- JavaFX FXML -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
@@ -28,12 +29,8 @@
         </dependency>
     </dependencies>
 
-
     <build>
         <plugins>
-
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -44,32 +41,6 @@
                 </configuration>
             </plugin>
 
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>app.Main</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <mainClass>app.Main</mainClass>
-                </configuration>
-            </plugin>
-
-
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -78,7 +49,6 @@
                     <mainClass>javafx.Launcher</mainClass>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>

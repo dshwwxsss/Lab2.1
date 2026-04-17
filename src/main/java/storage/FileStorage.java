@@ -151,7 +151,6 @@ public class FileStorage {
 
         return new LoadedData(samples, reports, lines);
     }
-    //запятая
     private String escapeCsv(String s) {
         if (s == null) return "";
         return s.contains(",") ? "\"" + s + "\"" : s;
