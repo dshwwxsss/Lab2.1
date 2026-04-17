@@ -30,7 +30,13 @@ public final class Sample {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    @Override
+    public String toString() {
+        return name + " (ID: " + id + ")";
+    }
 }
+
 
 //здесь нет валидации (название не проверяется на пустоту и длину,
 // потому что в нашем коде мы создаём образцы вручную с корректными именами
