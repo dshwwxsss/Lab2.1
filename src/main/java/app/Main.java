@@ -34,6 +34,11 @@ public class Main {
         registry.register("save", new SaveCommand(env));
         registry.register("load", new LoadCommand(env));
 
+        // 4 этап
+        if (args.length > 0 && args[0].equals("--gui")) {
+            javafx.Launcher.main(args);   // запуск UI
+        } else {
             interpreter.start(); //запуск интерпретатора
+        }
     }
 }
