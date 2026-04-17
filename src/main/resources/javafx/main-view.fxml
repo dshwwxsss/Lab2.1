@@ -11,42 +11,37 @@
         <Insets top="10" right="10" bottom="10" left="10"/>
     </padding>
 
-    <!-- Панель инструментов -->
+    <!-- Первая строка кнопок -->
     <ToolBar>
         <Button text="Обновить" onAction="#refreshTable"/>
         <Separator orientation="VERTICAL"/>
-        <Button text="Загрузить" onAction="#handleLoad"/>
         <Button text="Сохранить" onAction="#handleSave"/>
         <Separator orientation="VERTICAL"/>
         <Button text="Создать отчёт" onAction="#handleCreateReport"/>
         <Button text="Добавить строку" onAction="#handleAddLine"/>
+        <Button text="Редактировать строку" onAction="#handleUpdateLine"/>
         <Button text="Показать отчёт" onAction="#handleShowReport"/>
-        <Button text="Редактировать" onAction="#handleEditReport"/>
-        <Button text="Удалить" onAction="#handleDeleteReport"/>
-        <!-- Новая кнопка для удаления строки -->
+    </ToolBar>
+
+    <!-- Вторая строка кнопок -->
+    <ToolBar>
+        <Button text="Редактировать название/образец" onAction="#handleEditReport"/>
+        <Button text="Удалить отчёт" onAction="#handleDeleteReport"/>
         <Button text="Удалить строку" onAction="#handleDeleteLine"/>
         <Separator orientation="VERTICAL"/>
         <Button text="Финализировать" onAction="#handleFinalize"/>
         <Button text="Подписать" onAction="#handleSign"/>
-        <Button text="Экспорт" onAction="#handleExport"/>
+        <Button text="Список образцов" onAction="#handleShowSamples"/>
+        <Separator orientation="VERTICAL"/>
+        <ComboBox fx:id="filterComboBox" promptText="Фильтр по статусу"/>
     </ToolBar>
 
-    <!-- Прогресс-бар и статус -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <ProgressBar fx:id="progressBar" prefWidth="200" visible="false"/>
         <Label fx:id="statusLabel" text="Отчётов: 0"/>
     </HBox>
 
-    <!-- Таблица отчётов -->
     <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
-            <TableColumn fx:id="nameColumn" text="Название" prefWidth="200"/>
-            <TableColumn fx:id="sampleColumn" text="Образец" prefWidth="150"/>
-            <TableColumn fx:id="statusColumn" text="Статус" prefWidth="80"/>
-            <TableColumn fx:id="ownerColumn" text="Автор" prefWidth="100"/>
-            <TableColumn fx:id="createdAtColumn" text="Создан" prefWidth="150"/>
-        </columns>
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
         </columnResizePolicy>

@@ -1,7 +1,6 @@
 package javafx.controller;
 
 import domain.Report;
-import domain.ReportLine;
 import domain.Sample;
 import service.ReportLineService;
 import service.ReportService;
@@ -26,7 +25,9 @@ public class ReportOperationHandler {
             return null;
         }
         try {
-            return reportService.createReport(name, sample.getId(), 0L);
+            Report report = reportService.createReport(name, sample.getId(), 0L);
+            DialogManager.showAlert("Успех", "Отчёт создан: ID=" + report.getId());
+            return report;
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
             return null;
@@ -35,13 +36,11 @@ public class ReportOperationHandler {
 
     public void editReport(Report report) {
         if (report == null) return;
-        String newName = DialogManager.showTextInput("Редактирование названия", "Новое название:", report.getName());
-        if (newName == null || newName.isBlank()) {
-            DialogManager.showAlert("Ошибка", "Название не может быть пустым");
-            return;
-        }
-        report.setName(newName);
-        DialogManager.showAlert("Успех", "Название изменено");
+        String newName = DialogManager.showTextInput("Редактирование отчёта", "Новое название:", report.getName());
+        if (newName != null && !newName.isBlank()) report.setName(newName);
+        Sample newSample = DialogManager.showSampleChoice(sampleService.getSamples(), "Выберите новый образец (или отмена)");
+        if (newSample != null) report.setSampleId(newSample.getId());
+        DialogManager.showAlert("Успех", "Отчёт обновлён");
     }
 
     public void deleteReport(Report report) {
@@ -76,8 +75,9 @@ public class ReportOperationHandler {
         StringBuilder sb = new StringBuilder();
         sb.append("=== ОТЧЁТ #").append(report.getId()).append(" ===\n");
         sb.append("Название: ").append(report.getName()).append("\n");
-        sb.append("Статус: ").append(report.getStatus()).append("\n\n");
-        for (ReportLine line : lineService.getLinesByReport(report.getId())) {
+        sb.append("Статус: ").append(report.getStatus()).append("\n");
+        sb.append("Образец ID: ").append(report.getSampleId()).append("\n\n--- Строки ---\n");
+        for (var line : lineService.getLinesByReport(report.getId())) {
             sb.append(line.getParam()).append(": ").append(line.getValue()).append(" ").append(line.getUnit()).append("\n");
         }
         DialogManager.showAlert("Экспорт отчёта", sb.toString());

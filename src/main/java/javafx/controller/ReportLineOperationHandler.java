@@ -37,8 +37,8 @@ public class ReportLineOperationHandler {
             return;
         }
         try {
-            ReportLine line = reportLineService.addLine(report.getId(), param, value, unit);
-            DialogManager.showAlert("Успех", "Строка добавлена: ID=" + line.getId());
+            reportLineService.addLine(report.getId(), param, value, unit);
+            DialogManager.showAlert("Успех", "Строка добавлена");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
@@ -61,6 +61,55 @@ public class ReportLineOperationHandler {
         }
     }
 
+    public void updateLine(Report report) {
+        if (report == null) return;
+        var lines = reportLineService.getLinesByReport(report.getId());
+        if (lines.isEmpty()) {
+            DialogManager.showAlert("Ошибка", "Нет строк для редактирования");
+            return;
+        }
+        ReportLine oldLine = DialogManager.showLineChoice(lines, "Выберите строку:");
+        if (oldLine == null) return;
+
+        String[] options = {"Параметр", "Значение", "Единицы", "Всё"};
+        String choice = DialogManager.showChoice("Что редактировать?", options);
+        if (choice == null) return;
+
+        try {
+            switch (choice) {
+                case "Параметр":
+                    MeasurementParam newParam = DialogManager.showParamChoice("Новый параметр");
+                    if (newParam != null)
+                        reportLineService.updateLine(oldLine.getId(), "param", newParam.name());
+                    break;
+                case "Значение":
+                    String newValStr = DialogManager.showTextInput("Новое значение", "Число:", String.valueOf(oldLine.getValue()));
+                    if (newValStr != null)
+                        reportLineService.updateLine(oldLine.getId(), "value", newValStr);
+                    break;
+                case "Единицы":
+                    String newUnit = DialogManager.showTextInput("Новые единицы", "Единицы:", oldLine.getUnit());
+                    if (newUnit != null && !newUnit.isBlank())
+                        reportLineService.updateLine(oldLine.getId(), "unit", newUnit);
+                    break;
+                case "Всё":
+                    MeasurementParam p = DialogManager.showParamChoice("Параметр");
+                    if (p == null) return;
+                    String vStr = DialogManager.showTextInput("Значение", "Число:", String.valueOf(oldLine.getValue()));
+                    if (vStr == null) return;
+                    String u = DialogManager.showTextInput("Единицы", "Единицы:", oldLine.getUnit());
+                    if (u == null || u.isBlank()) return;
+                    reportLineService.updateLine(oldLine.getId(), "param", p.name());
+                    reportLineService.updateLine(oldLine.getId(), "value", vStr);
+                    reportLineService.updateLine(oldLine.getId(), "unit", u);
+                    break;
+            }
+            DialogManager.showAlert("Успех", "Строка обновлена");
+        } catch (Exception e) {
+            DialogManager.showAlert("Ошибка", e.getMessage());
+        }
+    }
+
     public void showReport(Report report, ReportLineService lineService) {
         if (report == null) return;
         var lines = lineService.getLinesByReport(report.getId());
@@ -68,9 +117,7 @@ public class ReportLineOperationHandler {
         sb.append("Отчёт #").append(report.getId()).append("\n\n");
         sb.append("Название: ").append(report.getName()).append("\n");
         sb.append("Статус: ").append(report.getStatus()).append("\n");
-        sb.append("Образец: ").append(report.getSampleId()).append("\n");
-        sb.append("Автор: ").append(report.getOwnerUsername()).append("\n");
-        sb.append("\n--- Строки отчёта (").append(lines.size()).append(") ---\n");
+        sb.append("Образец ID: ").append(report.getSampleId()).append("\n\n--- Строки ---\n");
         for (ReportLine line : lines) {
             sb.append(line.getParam()).append(": ").append(line.getValue()).append(" ").append(line.getUnit()).append("\n");
         }

@@ -5,6 +5,7 @@ import domain.ReportLine;
 import domain.Sample;
 import javafx.scene.control.*;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class DialogManager {
@@ -49,5 +50,13 @@ public class DialogManager {
         dialog.setTitle(title);
         dialog.setHeaderText(title);
         return dialog.showAndWait().orElse(null);
+    }
+
+    public static String showChoice(String title, String[] options) {
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(options[0], options);
+        dialog.setTitle(title);
+        dialog.setHeaderText(title);
+        Optional<String> result = dialog.showAndWait();
+        return result.orElse(null);
     }
 }

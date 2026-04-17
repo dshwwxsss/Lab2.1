@@ -101,4 +101,9 @@ public final class ReportLine { //поля
     public int hashCode() {
         return Objects.hash(id/*, reportId, param, value, unit, updatedAt, createdAt*/);
     }
+
+    @Override
+    public String toString() {
+        return param + " = " + value + " " + unit + " (ID=" + id + ")";
+    }
 }
