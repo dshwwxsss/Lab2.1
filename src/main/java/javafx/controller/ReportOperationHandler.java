@@ -19,8 +19,8 @@ public class ReportOperationHandler {
         Sample sample = DialogManager.showSampleChoice(sampleService.getSamples(), "Выберите образец");
         if (sample == null) return null;
         String name = DialogManager.showTextInput("Название отчёта", "Введите название:", "");
-        if (name == null || name.isBlank()) {
-            DialogManager.showAlert("Ошибка", "Название не может быть пустым");
+        if (name == null || name.trim().isEmpty()) {
+            DialogManager.showAlert("Ошибка", "Название не может быть пустым или из пробелов");
             return null;
         }
         try {
@@ -35,11 +35,13 @@ public class ReportOperationHandler {
 
     public void editReport(Report report) {
         if (report == null) return;
-        String newName = DialogManager.showTextInput("Редактирование отчёта", "Новое название:", report.getName());
-        if (newName != null && !newName.isBlank()) report.setName(newName);
-        Sample newSample = DialogManager.showSampleChoice(sampleService.getSamples(), "Выберите новый образец (или отмена)");
-        if (newSample != null) report.setSampleId(newSample.getId());
-        DialogManager.showAlert("Успех", "Отчёт обновлён");
+        String newName = DialogManager.showTextInput("Редактирование названия", "Новое название:", report.getName());
+        if (newName == null || newName.trim().isEmpty()) {
+            DialogManager.showAlert("Ошибка", "Название не может быть пустым или состоять из пробелов");
+            return;
+        }
+        report.setName(newName);
+        DialogManager.showAlert("Успех", "Название изменено");
     }
 
     public void deleteReport(Report report) {

@@ -22,6 +22,8 @@
         <Button text="Добавить строку" onAction="#handleAddLine"/>
         <Button text="Редактировать строку" onAction="#handleUpdateLine"/>
         <Button text="Показать отчёт" onAction="#handleShowReport"/>
+        <TextField fx:id="searchField" promptText="Поиск..."/>
+        <Button text="Найти" onAction="#handleSearch"/>
     </ToolBar>
 
     <!-- вторая строка, выпадающий список -->

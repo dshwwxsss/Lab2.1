@@ -5,6 +5,7 @@ import domain.Report;
 import domain.ReportLine;
 import domain.ReportStatus;
 import service.ReportLineService;
+import service.ReportService;
 import validation.ValidationException;
 
 public class ReportLineOperationHandler {
@@ -20,25 +21,52 @@ public class ReportLineOperationHandler {
             DialogManager.showAlert("Ошибка", "Строки можно добавлять только в черновик (DRAFT)");
             return;
         }
+
         MeasurementParam param = DialogManager.showParamChoice("Выберите параметр");
         if (param == null) return;
-        String valueStr = DialogManager.showTextInput("Значение", "Введите число:", "");
-        if (valueStr == null) return;
-        double value;
-        try {
-            value = Double.parseDouble(valueStr);
-        } catch (NumberFormatException e) {
-            DialogManager.showAlert("Ошибка", "Неверный формат числа");
-            return;
+
+        Double value = null;
+        while (value == null) {
+            String valueStr = DialogManager.showTextInput("Значение", "Введите число:", "");
+            if (valueStr == null) return;
+            try {
+                double v = Double.parseDouble(valueStr);
+                if (param == MeasurementParam.PH && (v < 0 || v > 14)) {
+                    DialogManager.showAlert("Ошибка", "Значение pH должно быть в диапазоне [0, 14]");
+                    continue;
+                }
+                if (param == MeasurementParam.CONDUCTIVITY && v < 0) {
+                    DialogManager.showAlert("Ошибка", "Электропроводность не может быть отрицательной");
+                    continue;
+                }
+                if (param == MeasurementParam.TEMPERATURE && (v < -50 || v > 1200)) {
+                    DialogManager.showAlert("Ошибка", "Температура должна быть в диапазоне [-50, 1200]");
+                    continue;
+                }
+                value = v;
+            } catch (NumberFormatException e) {
+                DialogManager.showAlert("Ошибка", "Неверный формат числа");
+            }
         }
-        String unit = DialogManager.showTextInput("Единицы измерения", "Введите единицы:", "");
-        if (unit == null || unit.isBlank()) {
-            DialogManager.showAlert("Ошибка", "Единицы не могут быть пустыми");
-            return;
+
+        String unit = null;
+        while (unit == null) {
+            String input = DialogManager.showTextInput("Единицы измерения", "Введите единицы:", "");
+            if (input == null) return;
+            if (input.isBlank()) {
+                DialogManager.showAlert("Ошибка", "Единицы не могут быть пустыми");
+                continue;
+            }
+            if (input.length() > 16) {
+                DialogManager.showAlert("Ошибка", "Единицы слишком длинные (макс. 16 символов)");
+                continue;
+            }
+            unit = input;
         }
+
         try {
-            reportLineService.addLine(report.getId(), param, value, unit);
-            DialogManager.showAlert("Успех", "Строка добавлена");
+            ReportLine line = reportLineService.addLine(report.getId(), param, value, unit);
+            DialogManager.showAlert("Успех", "Строка добавлена: ID=" + line.getId());
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
@@ -61,51 +89,57 @@ public class ReportLineOperationHandler {
         }
     }
 
-    public void updateLine(Report report) {
-        if (report == null) return;
-        var lines = reportLineService.getLinesByReport(report.getId());
-        if (lines.isEmpty()) {
-            DialogManager.showAlert("Ошибка", "Нет строк для редактирования");
-            return;
-        }
-        ReportLine oldLine = DialogManager.showLineChoice(lines, "Выберите строку:");
-        if (oldLine == null) return;
+    public void updateLine(ReportLine line) {
+        if (line == null) return;
 
-        String[] options = {"Параметр", "Значение", "Единицы", "Всё"};
-        String choice = DialogManager.showChoice("Что редактировать?", options);
-        if (choice == null) return;
+        MeasurementParam param = DialogManager.showParamChoice("Выберите параметр (текущий: " + line.getParam() + ")");
+        if (param == null) param = line.getParam();
+
+        Double value = null;
+        while (value == null) {
+            String valueStr = DialogManager.showTextInput("Значение", "Введите число (текущее: " + line.getValue() + "):", String.valueOf(line.getValue()));
+            if (valueStr == null) return;
+            try {
+                double v = Double.parseDouble(valueStr);
+                if (param == MeasurementParam.PH && (v < 0 || v > 14)) {
+                    DialogManager.showAlert("Ошибка", "Значение pH должно быть в диапазоне [0, 14]");
+                    continue;
+                }
+                if (param == MeasurementParam.CONDUCTIVITY && v < 0) {
+                    DialogManager.showAlert("Ошибка", "Электропроводность не может быть отрицательной");
+                    continue;
+                }
+                if (param == MeasurementParam.TEMPERATURE && (v < -50 || v > 1200)) {
+                    DialogManager.showAlert("Ошибка", "Температура должна быть в диапазоне [-50, 1200]");
+                    continue;
+                }
+                value = v;
+            } catch (NumberFormatException e) {
+                DialogManager.showAlert("Ошибка", "Неверный формат числа");
+            }
+        }
+
+        String unit = null;
+        while (unit == null) {
+            String input = DialogManager.showTextInput("Единицы измерения", "Введите единицы (текущие: " + line.getUnit() + "):", line.getUnit());
+            if (input == null) return;
+            if (input.isBlank()) {
+                DialogManager.showAlert("Ошибка", "Единицы не могут быть пустыми");
+                continue;
+            }
+            if (input.length() > 16) {
+                DialogManager.showAlert("Ошибка", "Единицы слишком длинные (макс. 16 символов)");
+                continue;
+            }
+            unit = input;
+        }
 
         try {
-            switch (choice) {
-                case "Параметр":
-                    MeasurementParam newParam = DialogManager.showParamChoice("Новый параметр");
-                    if (newParam != null)
-                        reportLineService.updateLine(oldLine.getId(), "param", newParam.name());
-                    break;
-                case "Значение":
-                    String newValStr = DialogManager.showTextInput("Новое значение", "Число:", String.valueOf(oldLine.getValue()));
-                    if (newValStr != null)
-                        reportLineService.updateLine(oldLine.getId(), "value", newValStr);
-                    break;
-                case "Единицы":
-                    String newUnit = DialogManager.showTextInput("Новые единицы", "Единицы:", oldLine.getUnit());
-                    if (newUnit != null && !newUnit.isBlank())
-                        reportLineService.updateLine(oldLine.getId(), "unit", newUnit);
-                    break;
-                case "Всё":
-                    MeasurementParam p = DialogManager.showParamChoice("Параметр");
-                    if (p == null) return;
-                    String vStr = DialogManager.showTextInput("Значение", "Число:", String.valueOf(oldLine.getValue()));
-                    if (vStr == null) return;
-                    String u = DialogManager.showTextInput("Единицы", "Единицы:", oldLine.getUnit());
-                    if (u == null || u.isBlank()) return;
-                    reportLineService.updateLine(oldLine.getId(), "param", p.name());
-                    reportLineService.updateLine(oldLine.getId(), "value", vStr);
-                    reportLineService.updateLine(oldLine.getId(), "unit", u);
-                    break;
-            }
+            reportLineService.updateLine(line.getId(), "param", param.name());
+            reportLineService.updateLine(line.getId(), "value", String.valueOf(value));
+            reportLineService.updateLine(line.getId(), "unit", unit);
             DialogManager.showAlert("Успех", "Строка обновлена");
-        } catch (Exception e) {
+        } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
     }
