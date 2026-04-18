@@ -27,7 +27,7 @@ public class FileOperationHandler {
         this.updateUITask = updateUITask;
     }
 
-    // Загрузка из файла (по требованию пользователя, например из Refresh)
+    // Загрузка из файла
     public void loadFromFile() {
         File file = new File(DATA_FILE);
         if (!file.exists()) {
@@ -37,9 +37,9 @@ public class FileOperationHandler {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                updateProgress(-1, 0);
+                updateProgress(-1, 0); // сообщаем прогресс-бару, что работа началась
                 var loaded = new FileStorage().loadAll(file.getAbsolutePath());
-                javafx.application.Platform.runLater(() -> {
+                javafx.application.Platform.runLater(() -> { // переключаемся в поток JavaFX
                     sampleService.replaceAll(loaded.samples);
                     reportService.replaceAll(loaded.reports);
                     reportLineService.replaceAll(loaded.lines);

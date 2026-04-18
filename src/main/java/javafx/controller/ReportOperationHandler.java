@@ -2,7 +2,6 @@ package javafx.controller;
 
 import domain.Report;
 import domain.Sample;
-import service.ReportLineService;
 import service.ReportService;
 import service.SampleService;
 import validation.ValidationException;
@@ -68,18 +67,5 @@ public class ReportOperationHandler {
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
-    }
-
-    public void exportReport(Report report, ReportLineService lineService) {
-        if (report == null) return;
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== ОТЧЁТ #").append(report.getId()).append(" ===\n");
-        sb.append("Название: ").append(report.getName()).append("\n");
-        sb.append("Статус: ").append(report.getStatus()).append("\n");
-        sb.append("Образец ID: ").append(report.getSampleId()).append("\n\n--- Строки ---\n");
-        for (var line : lineService.getLinesByReport(report.getId())) {
-            sb.append(line.getParam()).append(": ").append(line.getValue()).append(" ").append(line.getUnit()).append("\n");
-        }
-        DialogManager.showAlert("Экспорт отчёта", sb.toString());
     }
 }
