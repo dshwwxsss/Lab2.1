@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Insets?> <!-- отступы, элементры управления, контейнеры -->
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<!-- корневой вертикальный  контейнер, пространство имен, контроллер -->
 <VBox spacing="10" xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="javafx.controller.ReportTableController">
@@ -11,7 +12,7 @@
         <Insets top="10" right="10" bottom="10" left="10"/>
     </padding>
 
-    <!-- Первая строка кнопок -->
+    <!-- первая строка, горизонтальная полоса -->
     <ToolBar>
         <Button text="Обновить" onAction="#refreshTable"/>
         <Separator orientation="VERTICAL"/>
@@ -23,7 +24,7 @@
         <Button text="Показать отчёт" onAction="#handleShowReport"/>
     </ToolBar>
 
-    <!-- Вторая строка кнопок -->
+    <!-- вторая строка, выпадающий список -->
     <ToolBar>
         <Button text="Редактировать название/образец" onAction="#handleEditReport"/>
         <Button text="Удалить отчёт" onAction="#handleDeleteReport"/>
@@ -38,12 +39,12 @@
 
     <HBox spacing="10" alignment="CENTER_LEFT">
         <ProgressBar fx:id="progressBar" prefWidth="200" visible="false"/>
-        <Label fx:id="statusLabel" text="Отчётов: 0"/>
+        <Label fx:id="statusLabel" text="Отчётов: 0"/> <!-- текстовая метка -->
     </HBox>
 
-    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS"> <!--идентификатор для доступа из контроллера, вертикаль -->
         <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/> <!--колонки автоматически подстраиваются под общую ширину таблицы -->
         </columnResizePolicy>
     </TableView>
 </VBox>

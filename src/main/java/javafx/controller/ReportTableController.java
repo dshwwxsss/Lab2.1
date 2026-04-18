@@ -1,4 +1,4 @@
-package javafx.controller;
+package javafx.controller; //соединяет все, кнопки, таблицу, операции с отчетами и строками, загрузку
 
 import cli.Environment;
 import domain.ReportStatus;
@@ -8,10 +8,10 @@ import service.ReportLineService;
 import service.ReportService;
 import service.SampleService;
 
-public class ReportTableController {
+public class ReportTableController { //поля класса, связаны с элементом из FXML-файла
     @FXML private TableView<domain.Report> tableView;
     @FXML private ProgressBar progressBar;
-    @FXML private Label statusLabel;
+    @FXML private Label statusLabel; //количест о отчетов
     @FXML private ComboBox<String> filterComboBox;
 
     private ReportTableViewManager tableManager;
@@ -22,29 +22,28 @@ public class ReportTableController {
     private ReportLineService reportLineService;
     private SampleService sampleService;
 
-    public void setEnvironment(Environment env) {
+    public void setEnvironment(Environment env) { //контейнер с сервисами из JavaFXApp
         this.reportService = env.getReportService();
         this.reportLineService = env.getReportLineService();
         this.sampleService = env.getSampleService();
-
+//создаем помощников
         this.tableManager = new ReportTableViewManager(tableView, sampleService);
         this.reportOps = new ReportOperationHandler(reportService, sampleService);
         this.lineOps = new ReportLineOperationHandler(reportLineService);
         this.fileOps = new FileOperationHandler(sampleService, reportService, reportLineService,
-                progressBar, this::updateTableFromServices);
+                progressBar, this::updateTableFromServices); //ссылка на метод, который обновит таблицу после загрузки
 
         filterComboBox.getItems().addAll("Все", "DRAFT", "FINAL", "SIGNED");
         filterComboBox.setValue("Все");
         filterComboBox.setOnAction(e -> applyFilter());
 
-        // НЕТ АВТОМАТИЧЕСКОЙ ЗАГРУЗКИ ПРИ СТАРТЕ
         updateTableFromServices();
     }
 
     private void applyFilter() {
         String selected = filterComboBox.getValue();
         if (selected == null || selected.equals("Все")) tableManager.setStatusFilter(null);
-        else tableManager.setStatusFilter(ReportStatus.valueOf(selected));
+        else tableManager.setStatusFilter(ReportStatus.valueOf(selected)); //превращаем строку в специальный тип
     }
 
     private void updateTableFromServices() {
@@ -52,17 +51,17 @@ public class ReportTableController {
         statusLabel.setText("Отчётов: " + reportService.getAllReports().size());
     }
 
-    // Кнопка "Обновить" — перечитывает данные из файла
+    // кнопка "Обновить" перечитывает данные из файла
     @FXML private void refreshTable() {
         fileOps.loadFromFile(); // загружаем из data.csv
     }
 
-    // Кнопка "Сохранить" — записывает в файл
+    // кнопка "Сохранить" записывает в файл
     @FXML private void handleSave() {
         fileOps.saveToFile();
     }
 
-    // Остальные операции
+    // остальные операции
     @FXML private void handleCreateReport() {
         domain.Report r = reportOps.createReport();
         if (r != null) updateTableFromServices();
@@ -80,6 +79,6 @@ public class ReportTableController {
         var samples = sampleService.getSamples();
         StringBuilder sb = new StringBuilder("Список образцов:\n");
         for (var s : samples) sb.append(s.getId()).append(": ").append(s.getName()).append("\n");
-        DialogManager.showAlert("Образцы", sb.toString());
+        DialogManager.showAlert("Образцы", sb.toString()); //показываем диалог с этим текстом
     }
 }
