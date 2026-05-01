@@ -1,6 +1,5 @@
 package javafx.controller;
 
-import javafx.scene.control.TextField;
 import cli.Environment;
 import domain.Report;
 import domain.ReportLine;
@@ -28,12 +27,18 @@ public class ReportTableController {
     private ReportService reportService;
     private ReportLineService reportLineService;
     private SampleService sampleService;
+    private String currentUser = "SYSTEM";  // ВРЕМЕННО, потом через AuthService
     private String currentSearchQuery = "";
 
     public void setEnvironment(Environment env) {
         this.reportService = env.getReportService();
         this.reportLineService = env.getReportLineService();
         this.sampleService = env.getSampleService();
+
+        // Получаем текущего пользователя из AuthService
+        if (env.getAuthService().isAuthenticated()) {
+            this.currentUser = env.getAuthService().getCurrentUsername();
+        }
 
         this.tableManager = new ReportTableViewManager(tableView, sampleService);
         this.reportOps = new ReportOperationHandler(reportService, sampleService);
@@ -92,9 +97,8 @@ public class ReportTableController {
         applyFilterAndSearch();
     }
 
-    // Исправлено: кнопка "Обновить" просто обновляет таблицу из текущих данных
     @FXML private void refreshTable() {
-        fileOps.loadFromFile();  // перечитываем data.csv
+        updateTableFromServices();
     }
 
     @FXML private void handleSave() {
@@ -102,12 +106,12 @@ public class ReportTableController {
     }
 
     @FXML private void handleCreateReport() {
-        Report r = reportOps.createReport();
+        Report r = reportOps.createReport(currentUser);
         if (r != null) updateTableFromServices();
     }
 
     @FXML private void handleAddLine() {
-        lineOps.addLine(tableManager.getSelectedReport());
+        lineOps.addLine(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
     }
 
@@ -121,7 +125,7 @@ public class ReportTableController {
         }
         ReportLine line = DialogManager.showLineChoice(lines, "Выберите строку для редактирования:");
         if (line == null) return;
-        lineOps.updateLine(line);
+        lineOps.updateLine(line, currentUser);
         updateTableFromServices();
     }
 
@@ -130,27 +134,27 @@ public class ReportTableController {
     }
 
     @FXML private void handleEditReport() {
-        reportOps.editReport(tableManager.getSelectedReport());
+        reportOps.editReport(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
     }
 
     @FXML private void handleDeleteReport() {
-        reportOps.deleteReport(tableManager.getSelectedReport());
+        reportOps.deleteReport(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
     }
 
     @FXML private void handleDeleteLine() {
-        lineOps.deleteLine(tableManager.getSelectedReport());
+        lineOps.deleteLine(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
     }
 
     @FXML private void handleFinalize() {
-        reportOps.finalizeReport(tableManager.getSelectedReport());
+        reportOps.finalizeReport(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
     }
 
     @FXML private void handleSign() {
-        reportOps.signReport(tableManager.getSelectedReport());
+        reportOps.signReport(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
     }
 

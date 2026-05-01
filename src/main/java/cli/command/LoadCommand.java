@@ -20,20 +20,23 @@ public class LoadCommand extends Command {
     }
 
     @Override
-    public void checkArgs(List<String> args) throws ValidationException { //путь к файлу
+    public void checkArgs(List<String> args) throws ValidationException {
         if (args.size() != 1) {
-            throw new ValidationException("Использование: load <путь_к_файлу>");
+            throw new ValidationException("Ошибка: команда load требует один аргумент — путь к файлу. Использование: load <путь_к_файлу>");
         }
     }
 
     @Override
     public void execute(List<String> args) throws ValidationException {
-        String path = args.get(0); //берёт первый элемент списка
+        // ПРОВЕРКА АВТОРИЗАЦИИ
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Ошибка: вы не авторизованы. Используйте команду 'login'");
+        }
+
+        String path = args.get(0);
         try {
             FileStorage.LoadedData loaded = fileStorage.loadAll(path);
-
             fileValidator.validate(loaded);
-
             env.getSampleService().replaceAll(loaded.samples);
             env.getReportService().replaceAll(loaded.reports);
             env.getReportLineService().replaceAll(loaded.lines);

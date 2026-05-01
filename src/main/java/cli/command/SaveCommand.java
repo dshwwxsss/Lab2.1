@@ -25,6 +25,11 @@ public class SaveCommand extends Command {
 
     @Override
     public void execute(List<String> args) throws ValidationException {
+        // ПРОВЕРКА АВТОРИЗАЦИИ
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+        }
+
         String path = args.get(0);
         try {
             fileStorage.saveAll(path,
@@ -32,7 +37,7 @@ public class SaveCommand extends Command {
                     env.getReportService().getAllReports(),
                     env.getReportLineService().getAllLines());
             System.out.println("OK данные сохранены в " + path);
-        } catch (IOException e) { //ошибки ввод-вывод
+        } catch (IOException e) {
             throw new ValidationException("Ошибка сохранения: " + e.getMessage());
         }
     }

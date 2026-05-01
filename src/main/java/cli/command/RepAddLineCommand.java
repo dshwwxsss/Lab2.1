@@ -34,6 +34,12 @@ public class RepAddLineCommand extends Command {
     public void execute(List<String> args) throws ValidationException {
         long reportId = Long.parseLong(args.get(0));
 
+        // ПОЛУЧАЕМ currentUser ИЗ AuthService
+        String currentUser = env.getAuthService().getCurrentUsername();
+        if (currentUser == null) {
+            throw new ValidationException("Ошибка: вы не авторизованы. Используйте команду 'login'");
+        }
+
         var report = env.getReportService().getReport(reportId)
                 .orElseThrow(() -> new ValidationException("Отчёт с id=" + reportId + " не найден"));
 
@@ -59,7 +65,7 @@ public class RepAddLineCommand extends Command {
             String valueStr = env.getScanner().nextLine().trim();
             try {
                 double val = Double.parseDouble(valueStr);
-                ReportLine tempLine = new ReportLine(0, reportId, param, val, "temp");
+                ReportLine tempLine = new ReportLine(0, reportId, param, val, "temp", currentUser);
                 try {
                     validator.validate(tempLine);
                     value = val;
@@ -76,7 +82,7 @@ public class RepAddLineCommand extends Command {
         while (unit == null) {
             System.out.print("Единицы: ");
             String unitStr = env.getScanner().nextLine().trim();
-            ReportLine tempLine = new ReportLine(0, reportId, param, value, unitStr);
+            ReportLine tempLine = new ReportLine(0, reportId, param, value, unitStr, currentUser);
             try {
                 validator.validate(tempLine);
                 unit = unitStr;
@@ -85,9 +91,12 @@ public class RepAddLineCommand extends Command {
             }
         }
 
-
-        var line = env.getReportLineService().addLine(reportId, param, value, unit);
-        System.out.println("OK line_id=" + line.getId());
+        try {
+            var line = env.getReportLineService().addLine(reportId, param, value, unit, currentUser);
+            System.out.println("OK line_id=" + line.getId());
+        } catch (ValidationException e) {
+            throw new ValidationException(e.getMessage());
+        }
     }
 
     @Override

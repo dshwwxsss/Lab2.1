@@ -1,10 +1,6 @@
-package service; //хранит строки отчётов, умеет добавлять, изменять, удалять
+package service;
 
-
-import domain.MeasurementParam;
-import domain.Report;
-import domain.ReportLine;
-import domain.ReportStatus;
+import domain.*;
 import validation.ReportLineValidator;
 import validation.ValidationException;
 
@@ -14,13 +10,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ReportLineService { //поля
+public class ReportLineService {
     private final Set<ReportLine> lines = new HashSet<>();
     private final ReportLineValidator validator;
     private final ReportService reportService;
 
-    public ReportLineService(ReportService reportService) { //конструктор
-        this.reportService = reportService; //переданный объект
+    public ReportLineService(ReportService reportService) {
+        this.reportService = reportService;
         this.validator = new ReportLineValidator(reportService);
     }
 
@@ -28,41 +24,46 @@ public class ReportLineService { //поля
         return System.currentTimeMillis() + lines.size();
     }
 
-    //добавление строки с автоматическим ID
-    public ReportLine addLine(long reportId, MeasurementParam param, double value, String unit)
-        throws ValidationException {
-        ReportLine line = new ReportLine(generateId(), reportId, param, value, unit);
+    public ReportLine addLine(long reportId, MeasurementParam param, double value, String unit, String ownerUsername)
+            throws ValidationException {
+        ReportLine line = new ReportLine(generateId(), reportId, param, value, unit, ownerUsername);
         validator.validate(line);
         lines.add(line);
         return line;
     }
-//поиск строки по ID
+
     public Optional<ReportLine> getLine(long id) {
-        return lines.stream()
-                .filter(l -> l.getId() == id)
-                .findFirst();
+        return lines.stream().filter(l -> l.getId() == id).findFirst();
     }
-//все строки одного отчета
+
     public Set<ReportLine> getLinesByReport(long reportId) {
-        return lines.stream()
-                .filter(l -> l.getReportId() == reportId)
-                .collect(Collectors.toSet());
+        return lines.stream().filter(l -> l.getReportId() == reportId).collect(Collectors.toSet());
     }
-//обновление строки
-    public void updateLine(long id, String field, String value) throws ValidationException {
+
+    public void updateLine(long id, String field, String value, String currentUser) throws ValidationException {
         ReportLine line = getLine(id)
                 .orElseThrow(() -> new ValidationException("Строка с id=" + id + " не найдена"));
+
+        if (!line.getOwnerUsername().equals(currentUser)) {
+            throw new ValidationException("Ошибка: у вас нет прав на редактирование этой строки");
+        }
+
+        Report report = reportService.getReport(line.getReportId())
+                .orElseThrow(() -> new ValidationException("Отчёт не найден"));
+        if (report.getStatus() != ReportStatus.DRAFT) {
+            throw new ValidationException("Редактировать строки можно только у черновика (DRAFT)");
+        }
 
         ReportLine updated = new ReportLine(
                 line.getId(),
                 line.getReportId(),
                 line.getParam(),
                 line.getValue(),
-                line.getUnit()
+                line.getUnit(),
+                line.getOwnerUsername()
         );
         updated.setUpdatedAt(Instant.now());
 
-        //оздаём копию, меняем её, а потом заменяем старую на новую
         switch (field) {
             case "param":
                 try {
@@ -91,10 +92,14 @@ public class ReportLineService { //поля
         lines.remove(line);
         lines.add(updated);
     }
-//удаление строки
-    public void deleteLine(long id) throws ValidationException {
+
+    public void deleteLine(long id, String currentUser) throws ValidationException {
         ReportLine line = getLine(id)
                 .orElseThrow(() -> new ValidationException("Строка с id=" + id + " не найдена"));
+
+        if (!line.getOwnerUsername().equals(currentUser)) {
+            throw new ValidationException("Ошибка: у вас нет прав на удаление этой строки");
+        }
 
         Report report = reportService.getReport(line.getReportId())
                 .orElseThrow(() -> new ValidationException("Отчёт не найден"));
@@ -104,13 +109,12 @@ public class ReportLineService { //поля
         }
         lines.remove(line);
     }
-    // Метод для загрузки из файла: заменяет все строки новыми
+
     public void replaceAll(Set<ReportLine> newLines) {
         lines.clear();
         lines.addAll(newLines);
     }
 
-    // Геттер для получения всех строк (нужен для команды save)
     public Set<ReportLine> getAllLines() {
         return new HashSet<>(lines);
     }

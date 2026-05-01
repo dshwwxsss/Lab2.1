@@ -16,9 +16,9 @@ public class FileStorage {
                         Set<ReportLine> lines) throws IOException { //Input/Output Exception
         try (PrintWriter writer = new PrintWriter(new FileWriter(path))) { // рабочий, который берет path (путь), идет к операционной системе и открывает файл для записи
             writer.println("#SAMPLES");
-            writer.println("id,name");
+            writer.println("id,name,ownerUsername");
             for (Sample s : samples) {
-                writer.printf("%d,%s%n", s.getId(), escapeCsv(s.getName()));
+                writer.printf("%d,%s,%s%n", s.getId(), escapeCsv(s.getName()), escapeCsv(s.getOwnerUsername()));
             }
             writer.println();
 
@@ -40,16 +40,17 @@ public class FileStorage {
             writer.println();
 
             writer.println("#REPORT_LINES");
-            writer.println("id,reportId,param,value,unit,createdAt,updatedAt");
+            writer.println("id,reportId,param,value,unit,createdAt,updatedAt,ownerUsername");
             for (ReportLine l : lines) {
-                writer.printf(Locale.US, "%d,%d,%s,%.2f,%s,%s,%s%n",
+                writer.printf(Locale.US, "%d,%d,%s,%.2f,%s,%s,%s,%s%n",
                         l.getId(),
                         l.getReportId(),
                         CsvFormat.formatEnum(l.getParam()),
                         l.getValue(),  // теперь 7.12, а не 7,12
                         escapeCsv(l.getUnit()),
                         CsvFormat.formatInstant(l.getCreatedAt()),
-                        CsvFormat.formatInstant(l.getUpdatedAt())
+                        CsvFormat.formatInstant(l.getUpdatedAt()),
+                        escapeCsv(l.getOwnerUsername())
                 );
             }
         }
@@ -178,9 +179,11 @@ public class FileStorage {
 
     // превращает строку из CSV в объект Sample
     private Sample parseSample(String[] parts) {
-        long id = CsvFormat.parseLong(parts[0]);
-        String name = unescapeCsv(parts[1]);
-        return new Sample(id, name);
+        return new Sample(
+                CsvFormat.parseLong(parts[0]),
+                unescapeCsv(parts[1]),
+                parts.length > 2 ? unescapeCsv(parts[2]) : null
+        );
     }
 
     // превращает строку из CSV в объект Report
@@ -205,7 +208,8 @@ public class FileStorage {
                 CsvFormat.parseLong(parts[1]),//id report
                 CsvFormat.parseEnum(parts[2], MeasurementParam.class),//param
                 CsvFormat.parseDouble(parts[3]),//value
-                unescapeCsv(parts[4])//unit
+                unescapeCsv(parts[4]),
+                unescapeCsv(parts[7])
         );
         l.setCreatedAt(CsvFormat.parseInstant(parts[5]));
         l.setUpdatedAt(CsvFormat.parseInstant(parts[6]));

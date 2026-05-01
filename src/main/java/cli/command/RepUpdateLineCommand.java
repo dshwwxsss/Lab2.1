@@ -33,7 +33,11 @@ public class RepUpdateLineCommand extends Command {
         long lineId = Long.parseLong(args.get(0));
         for (int i = 1; i < args.size(); i++) {
             String[] kv = args.get(i).split("=", 2);
-            env.getReportLineService().updateLine(lineId, kv[0], kv[1]);
+            String currentUser = env.getAuthService().getCurrentUsername();
+            if (!env.getAuthService().isAuthenticated()) {
+                throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+            }
+            env.getReportLineService().updateLine(lineId, kv[0], kv[1], currentUser);
         }
         System.out.println("OK");
     }

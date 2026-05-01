@@ -1,4 +1,4 @@
-package cli.command; //переводит отчёт в статус FINAL
+package cli.command;
 
 import cli.Command;
 import cli.Environment;
@@ -25,7 +25,11 @@ public class RepFinalizeCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long id = Long.parseLong(args.get(0));
-        env.getReportService().finalizeReport(id);
+        String currentUser = env.getAuthService().getCurrentUsername();
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+        }
+        env.getReportService().finalizeReport(id, currentUser);
         System.out.println("OK report " + id + " FINAL");
     }
 

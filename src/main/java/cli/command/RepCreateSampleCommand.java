@@ -1,4 +1,4 @@
-package cli.command; //создаёт отчёт по образцу (интерактивно запрашивает название)
+package cli.command;
 
 import cli.Command;
 import cli.Environment;
@@ -25,6 +25,11 @@ public class RepCreateSampleCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long sampleId = Long.parseLong(args.get(0));
+        String currentUser = env.getAuthService().getCurrentUsername();
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+        }
+
         if (!env.getSampleService().exists(sampleId)) {
             throw new ValidationException("Образец с id=" + sampleId + " не найден");
         }
@@ -33,18 +38,16 @@ public class RepCreateSampleCommand extends Command {
         while (name == null) {
             System.out.print("Название отчёта: ");
             String input = env.getScanner().nextLine().trim();
-
             if (input.isEmpty()) {
                 System.out.println("Ошибка: Название не может быть пустым");
-
-        }  else if (input.length() > 128) {
-            System.out.println("Ошибка: Название слишком длинное (макс. 128 символов)");
-        } else {
-            name = input;
+            } else if (input.length() > 128) {
+                System.out.println("Ошибка: Название слишком длинное (макс. 128 символов)");
+            } else {
+                name = input;
+            }
         }
-    }
 
-        var report = env.getReportService().createReport(name, sampleId, 0);
+        var report = env.getReportService().createReport(name, sampleId, 0, currentUser);
         System.out.println("OK report_id=" + report.getId());
     }
 

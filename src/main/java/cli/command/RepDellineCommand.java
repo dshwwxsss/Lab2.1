@@ -1,4 +1,5 @@
-package cli.command; //удаляет строку
+package cli.command;
+
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
@@ -24,7 +25,11 @@ public class RepDellineCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long lineId = Long.parseLong(args.get(0));
-        env.getReportLineService().deleteLine(lineId);
+        String currentUser = env.getAuthService().getCurrentUsername();
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+        }
+        env.getReportLineService().deleteLine(lineId, currentUser);
         System.out.println("OK deleted");
     }
 

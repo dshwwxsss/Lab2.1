@@ -1,38 +1,39 @@
 package javafx;
 
+import cli.Environment;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import cli.Environment;
+import service.*;
 
 public class JavaFXApp extends Application {
 
     public static void main(String[] args) {
-        launch(args); //открыть окно
+        launch(args);
     }
 
-    @Override // читает файл и заполняет окно
+    @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader( //читалка FXML-файла
+        FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/javafx/main-view.fxml")
         );
 
-        Scene scene = new Scene(loader.load(), 1200, 700); //загружаем FXML, упаковываем результат в сцену,  сначала создаём сцену, а потом кладём её в окно
+        Scene scene = new Scene(loader.load(), 1200, 700);
 
         javafx.controller.ReportTableController controller = loader.getController();
 
-        // создаём сервисы
-        service.SampleService sampleService = new service.SampleService();
-        service.ReportService reportService = new service.ReportService(sampleService);
-        service.ReportLineService reportLineService = new service.ReportLineService(reportService);
+        SampleService sampleService = new SampleService();
+        ReportService reportService = new ReportService(sampleService);
+        ReportLineService reportLineService = new ReportLineService(reportService);
+        AuthService authService = new AuthService();  // НОВОЕ
 
-        // передаём в контроллер контейнером
-        cli.Environment env = new cli.Environment(
+        Environment env = new Environment(
                 sampleService,
                 reportService,
                 reportLineService,
-                new java.util.Scanner(System.in) //сканер для чтения с клавиатуры
+                new java.util.Scanner(System.in),
+                authService  // НОВОЕ
         );
         controller.setEnvironment(env);
 

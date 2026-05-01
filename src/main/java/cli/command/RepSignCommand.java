@@ -1,4 +1,4 @@
-package cli.command; //подписывает отчёт (статус SIGNED)
+package cli.command;
 
 import cli.Command;
 import cli.Environment;
@@ -25,8 +25,12 @@ public class RepSignCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long id = Long.parseLong(args.get(0));
-        env.getReportService().signReport(id);
-        System.out.println("OK report " + id + " SIGNED by SYSTEM");
+        String currentUser = env.getAuthService().getCurrentUsername();
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+        }
+        env.getReportService().signReport(id, currentUser);
+        System.out.println("OK report " + id + " SIGNED by " + currentUser);
     }
 
     @Override

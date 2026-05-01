@@ -1,23 +1,22 @@
-package domain; //описывает образец (ID, имя)
+package domain;
 
 import java.util.Objects;
 
 public final class Sample {
     private final long id;
     private final String name;
+    private String ownerUsername;
 
-    public Sample(long id, String name) {
+    public Sample(long id, String name, String ownerUsername) {
         this.id = id;
         this.name = name;
-    }
-//читать, но не менять
-    public long getId() {
-        return id;
+        this.ownerUsername = ownerUsername;
     }
 
-    public String getName() {
-        return name;
-    }
+    public long getId() { return id; }
+    public String getName() { return name; }
+    public String getOwnerUsername() { return ownerUsername; }
+    public void setOwnerUsername(String ownerUsername) { this.ownerUsername = ownerUsername; }
 
     @Override
     public boolean equals(Object o) {
@@ -36,7 +35,3 @@ public final class Sample {
         return name + " (ID: " + id + ")";
     }
 }
-
-
-//здесь нет валидации (название не проверяется на пустоту и длину,
-// потому что в нашем коде мы создаём образцы вручную с корректными именами

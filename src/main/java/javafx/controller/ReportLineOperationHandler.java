@@ -1,11 +1,7 @@
 package javafx.controller;
 
-import domain.MeasurementParam;
-import domain.Report;
-import domain.ReportLine;
-import domain.ReportStatus;
+import domain.*;
 import service.ReportLineService;
-import service.ReportService;
 import validation.ValidationException;
 
 public class ReportLineOperationHandler {
@@ -15,7 +11,7 @@ public class ReportLineOperationHandler {
         this.reportLineService = reportLineService;
     }
 
-    public void addLine(Report report) {
+    public void addLine(Report report, String currentUser) {
         if (report == null) return;
         if (report.getStatus() != ReportStatus.DRAFT) {
             DialogManager.showAlert("Ошибка", "Строки можно добавлять только в черновик (DRAFT)");
@@ -65,14 +61,14 @@ public class ReportLineOperationHandler {
         }
 
         try {
-            ReportLine line = reportLineService.addLine(report.getId(), param, value, unit);
+            ReportLine line = reportLineService.addLine(report.getId(), param, value, unit, currentUser);
             DialogManager.showAlert("Успех", "Строка добавлена: ID=" + line.getId());
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
     }
 
-    public void deleteLine(Report report) {
+    public void deleteLine(Report report, String currentUser) {
         if (report == null) return;
         var lines = reportLineService.getLinesByReport(report.getId());
         if (lines.isEmpty()) {
@@ -82,14 +78,14 @@ public class ReportLineOperationHandler {
         ReportLine line = DialogManager.showLineChoice(lines, "Выберите строку для удаления:");
         if (line == null) return;
         try {
-            reportLineService.deleteLine(line.getId());
+            reportLineService.deleteLine(line.getId(), currentUser);
             DialogManager.showAlert("Успех", "Строка удалена");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
     }
 
-    public void updateLine(ReportLine line) {
+    public void updateLine(ReportLine line, String currentUser) {
         if (line == null) return;
 
         MeasurementParam param = DialogManager.showParamChoice("Выберите параметр (текущий: " + line.getParam() + ")");
@@ -135,9 +131,9 @@ public class ReportLineOperationHandler {
         }
 
         try {
-            reportLineService.updateLine(line.getId(), "param", param.name());
-            reportLineService.updateLine(line.getId(), "value", String.valueOf(value));
-            reportLineService.updateLine(line.getId(), "unit", unit);
+            reportLineService.updateLine(line.getId(), "param", param.name(), currentUser);
+            reportLineService.updateLine(line.getId(), "value", String.valueOf(value), currentUser);
+            reportLineService.updateLine(line.getId(), "unit", unit, currentUser);
             DialogManager.showAlert("Успех", "Строка обновлена");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
@@ -151,7 +147,9 @@ public class ReportLineOperationHandler {
         sb.append("Отчёт #").append(report.getId()).append("\n\n");
         sb.append("Название: ").append(report.getName()).append("\n");
         sb.append("Статус: ").append(report.getStatus()).append("\n");
-        sb.append("Образец ID: ").append(report.getSampleId()).append("\n\n--- Строки ---\n");
+        sb.append("Образец: ").append(report.getSampleId()).append("\n");
+        sb.append("Автор: ").append(report.getOwnerUsername()).append("\n");
+        sb.append("\n--- Строки отчёта (").append(lines.size()).append(") ---\n");
         for (ReportLine line : lines) {
             sb.append(line.getParam()).append(": ").append(line.getValue()).append(" ").append(line.getUnit()).append("\n");
         }

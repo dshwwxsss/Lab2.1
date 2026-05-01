@@ -1,4 +1,4 @@
-package service; //хранит отчёты, умеет создавать, искать, менять статусы
+package service;
 
 import domain.Report;
 import domain.ReportStatus;
@@ -12,10 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ReportService {
-    private final Set<Report> reports = new HashSet<>(); //коллекция сов семи отчетами
+    private final Set<Report> reports = new HashSet<>();
     private final ReportValidator validator;
 
-    //в конструктор передаётся SampleService
     public ReportService(SampleService sampleService) {
         this.validator = new ReportValidator(sampleService);
     }
@@ -23,57 +22,85 @@ public class ReportService {
     private long generateId() {
         return System.currentTimeMillis() + reports.size();
     }
-//создание отчета
-    public Report createReport(String name, long sampleId, long experimentId) throws ValidationException {
-        Report report = new Report(generateId(), name, sampleId, experimentId, "SYSTEM");
+
+    public Report createReport(String name, long sampleId, long experimentId, String ownerUsername) throws ValidationException {
+        Report report = new Report(generateId(), name, sampleId, experimentId, ownerUsername);
         validator.validate(report);
         reports.add(report);
         return report;
     }
 
     public Optional<Report> getReport(long id) {
-        return reports.stream()
-                .filter(r -> r.getId() == id)
-                .findFirst();
+        return reports.stream().filter(r -> r.getId() == id).findFirst();
     }
 
     public Set<Report> getAllReports() {
         return new HashSet<>(reports);
     }
 
-    //получение отчётов по статусу
     public Set<Report> getReportsByStatus(ReportStatus status) {
-        return reports.stream()
-                .filter(r -> r.getStatus() == status)
-                .collect(Collectors.toSet());
+        return reports.stream().filter(r -> r.getStatus() == status).collect(Collectors.toSet());
     }
-//FINAL
-    public void finalizeReport(long id) throws ValidationException {
+
+    public void finalizeReport(long id, String currentUser) throws ValidationException {
         Report report = getReport(id)
                 .orElseThrow(() -> new ValidationException("Отчёт с id=" + id + " не найден"));
+
+        if (!report.getOwnerUsername().equals(currentUser)) {
+            throw new ValidationException("Ошибка: у вас нет прав на финализацию этого отчёта");
+        }
+
         validator.validateStatusChange(report, ReportStatus.FINAL);
         report.setStatus(ReportStatus.FINAL);
         report.setUpdatedAt(Instant.now());
-        // обновление в Set
         reports.remove(report);
         reports.add(report);
     }
 
-    //SIGNED
-    public void signReport(long id) throws ValidationException {
+    public void signReport(long id, String currentUser) throws ValidationException {
         Report report = getReport(id)
                 .orElseThrow(() -> new ValidationException("Отчёт с id=" + id + " не найден"));
+
+        if (!report.getOwnerUsername().equals(currentUser)) {
+            throw new ValidationException("Ошибка: у вас нет прав на подписание этого отчёта");
+        }
+
         validator.validateStatusChange(report, ReportStatus.SIGNED);
         report.setStatus(ReportStatus.SIGNED);
-        report.setSignedBy("SYSTEM");
+        report.setSignedBy(currentUser);
         report.setUpdatedAt(Instant.now());
     }
 
-    public void deleteReport(long id) {
-        reports.removeIf(r -> r.getId() == id);
+    public void deleteReport(long id, String currentUser) throws ValidationException {
+        Report report = getReport(id)
+                .orElseThrow(() -> new ValidationException("Отчёт с id=" + id + " не найден"));
+
+        if (!report.getOwnerUsername().equals(currentUser)) {
+            throw new ValidationException("Ошибка: у вас нет прав на удаление этого отчёта");
+        }
+
+        reports.remove(report);
     }
 
-    // Метод для загрузки из файла: заменяет все отчёты новыми
+    public void editReportName(long id, String newName, String currentUser) throws ValidationException {
+        Report report = getReport(id)
+                .orElseThrow(() -> new ValidationException("Отчёт с id=" + id + " не найден"));
+
+        if (!report.getOwnerUsername().equals(currentUser)) {
+            throw new ValidationException("Ошибка: у вас нет прав на редактирование этого отчёта");
+        }
+
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new ValidationException("Название не может быть пустым");
+        }
+        if (newName.length() > 128) {
+            throw new ValidationException("Название слишком длинное (макс. 128 символов)");
+        }
+
+        report.setName(newName);
+        report.setUpdatedAt(Instant.now());
+    }
+
     public void replaceAll(Set<Report> newReports) {
         reports.clear();
         reports.addAll(newReports);
