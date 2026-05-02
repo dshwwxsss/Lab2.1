@@ -31,6 +31,7 @@ public class UserStorage {
     // Сохранить всех пользователей в файл
     public void saveAll() throws IOException {
         try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(Paths.get(USER_FILE)))) {
+            writer.println("login,passwordHash");
             for (User user : users) {
                 writer.printf("%s,%s%n", escapeCsv(user.getLogin()), user.getPasswordHash());
             }

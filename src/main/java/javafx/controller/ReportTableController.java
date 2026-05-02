@@ -30,7 +30,7 @@ public class ReportTableController {
     private ReportService reportService;
     private ReportLineService reportLineService;
     private SampleService sampleService;
-    private String currentUser = "SYSTEM";  // ВРЕМЕННО, потом через AuthService
+    private String currentUser = "SYSTEM";
     private String currentSearchQuery = "";
 
     public void setEnvironment(Environment env) {
@@ -42,22 +42,29 @@ public class ReportTableController {
         // Получаем текущего пользователя из AuthService
         if (env.getAuthService().isAuthenticated()) {
             this.currentUser = env.getAuthService().getCurrentUsername();
-        }
-        if (env.getAuthService().isAuthenticated()) {
-            userLabel.setText("Пользователь: " + env.getAuthService().getCurrentUsername());
+            userLabel.setText("Пользователь: " + currentUser);
         }
 
+        // Инициализация менеджеров и хендлеров
         this.tableManager = new ReportTableViewManager(tableView, sampleService);
         this.reportOps = new ReportOperationHandler(reportService, sampleService);
         this.lineOps = new ReportLineOperationHandler(reportLineService);
         this.fileOps = new FileOperationHandler(sampleService, reportService, reportLineService,
                 progressBar, this::updateTableFromServices);
 
+        // Загружаем данные из файла (асинхронно)
+        if (fileOps != null) {
+            fileOps.loadFromFile();
+        } else {
+            System.err.println("Ошибка: fileOps не инициализирован");
+        }
+
+        // Настройка фильтра
         filterComboBox.getItems().addAll("Все", "DRAFT", "FINAL", "SIGNED");
         filterComboBox.setValue("Все");
         filterComboBox.setOnAction(e -> applyFilter());
 
-        updateTableFromServices();
+        // Не вызываем updateTableFromServices() сразу, т.к. loadFromFile() обновит таблицу
     }
 
     private void applyFilter() {
@@ -105,11 +112,19 @@ public class ReportTableController {
     }
 
     @FXML private void refreshTable() {
-        updateTableFromServices();
+        if (fileOps != null) {
+            fileOps.loadFromFile();
+        } else {
+            DialogManager.showAlert("Ошибка", "Не удалось обновить таблицу");
+        }
     }
 
     @FXML private void handleSave() {
-        fileOps.saveToFile();
+        if (fileOps != null) {
+            fileOps.saveToFile();
+        } else {
+            DialogManager.showAlert("Ошибка", "Не удалось сохранить данные");
+        }
     }
 
     @FXML private void handleCreateReport() {
@@ -171,7 +186,7 @@ public class ReportTableController {
         for (var s : samples) sb.append(s.getId()).append(": ").append(s.getName()).append("\n");
         DialogManager.showAlert("Образцы", sb.toString());
     }
-    //вызывается при "выйти"
+
     @FXML private void handleLogout() {
         env.getAuthService().logout();
         Stage stage = (Stage) tableView.getScene().getWindow();
