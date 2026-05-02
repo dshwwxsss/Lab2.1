@@ -171,6 +171,7 @@ public class ReportTableController {
         for (var s : samples) sb.append(s.getId()).append(": ").append(s.getName()).append("\n");
         DialogManager.showAlert("Образцы", sb.toString());
     }
+    //вызывается при "выйти"
     @FXML private void handleLogout() {
         env.getAuthService().logout();
         Stage stage = (Stage) tableView.getScene().getWindow();
