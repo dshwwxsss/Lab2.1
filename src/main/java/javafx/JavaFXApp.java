@@ -20,15 +20,13 @@ public class JavaFXApp extends Application {
         ReportService reportService = new ReportService(sampleService);
         ReportLineService reportLineService = new ReportLineService(reportService);
         AuthService authService = new AuthService();
-
-        // ПОКАЗЫВАЕМ ОКНО ВХОДА
-        LoginDialog loginDialog = new LoginDialog(authService);
+        LoginDialog loginDialog = new LoginDialog(authService); // окно входа
         if (!loginDialog.showAndWait()) {
             stage.close();
             return;
         }
 
-        // ЗАГРУЖАЕМ ГЛАВНОЕ ОКНО
+        // загружаем главное
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/javafx/main-view.fxml")
         );

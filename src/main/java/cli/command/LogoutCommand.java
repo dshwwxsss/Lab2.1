@@ -12,7 +12,7 @@ public class LogoutCommand extends Command {
         super(env);
     }
 
-    @Override
+    @Override //сервис аутентификации
     public void execute(List<String> args) throws ValidationException {
         if (!env.getAuthService().isAuthenticated()) {
             throw new ValidationException("Вы не авторизованы");
