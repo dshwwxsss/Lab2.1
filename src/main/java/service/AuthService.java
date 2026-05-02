@@ -10,20 +10,19 @@ import java.util.Optional;
 
 public class AuthService {
     private UserStorage userStorage;
-    private User currentUser; // текущий авторизованный пользователь
+    private User currentUser;
 
     public AuthService() {
         this.userStorage = new UserStorage();
-        loadUsersFromFile(); // загружаем пользователей при старте
+        loadUsersFromFile();
     }
 
-    // Хеширование пароля (MD5)
     public static String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hashBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) {
+            byte[] hashBytes = md.digest(password.getBytes());//превращаем пароль в хеш
+            StringBuilder sb = new StringBuilder();//создаём строитель строк
+            for (byte b : hashBytes) {//цикл по каждому байту
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
