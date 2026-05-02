@@ -35,12 +35,14 @@
         <Button text="Финализировать" onAction="#handleFinalize"/>
         <Button text="Подписать" onAction="#handleSign"/>
         <Button text="Список образцов" onAction="#handleShowSamples"/>
+        <Button text="Выйти" onAction="#handleLogout"/>
         <Separator orientation="VERTICAL"/>
         <ComboBox fx:id="filterComboBox" promptText="Фильтр по статусу"/>
     </ToolBar>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
         <ProgressBar fx:id="progressBar" prefWidth="200" visible="false"/>
+        <Label fx:id="userLabel" text=""/>
         <Label fx:id="statusLabel" text="Отчётов: 0"/> <!-- текстовая метка -->
     </HBox>
 

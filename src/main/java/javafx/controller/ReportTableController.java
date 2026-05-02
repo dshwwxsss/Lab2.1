@@ -5,8 +5,10 @@ import domain.Report;
 import domain.ReportLine;
 import domain.ReportStatus;
 import domain.Sample;
+import javafx.JavaFXApp;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import service.ReportLineService;
 import service.ReportService;
 import service.SampleService;
@@ -19,7 +21,8 @@ public class ReportTableController {
     @FXML private Label statusLabel;
     @FXML private ComboBox<String> filterComboBox;
     @FXML private TextField searchField;
-
+    @FXML private Label userLabel;
+    private Environment env;
     private ReportTableViewManager tableManager;
     private ReportOperationHandler reportOps;
     private ReportLineOperationHandler lineOps;
@@ -34,10 +37,14 @@ public class ReportTableController {
         this.reportService = env.getReportService();
         this.reportLineService = env.getReportLineService();
         this.sampleService = env.getSampleService();
+        this.env = env;
 
         // Получаем текущего пользователя из AuthService
         if (env.getAuthService().isAuthenticated()) {
             this.currentUser = env.getAuthService().getCurrentUsername();
+        }
+        if (env.getAuthService().isAuthenticated()) {
+            userLabel.setText("Пользователь: " + env.getAuthService().getCurrentUsername());
         }
 
         this.tableManager = new ReportTableViewManager(tableView, sampleService);
@@ -163,5 +170,16 @@ public class ReportTableController {
         StringBuilder sb = new StringBuilder("Список образцов:\n");
         for (var s : samples) sb.append(s.getId()).append(": ").append(s.getName()).append("\n");
         DialogManager.showAlert("Образцы", sb.toString());
+    }
+    @FXML private void handleLogout() {
+        env.getAuthService().logout();
+        Stage stage = (Stage) tableView.getScene().getWindow();
+        stage.close();
+
+        try {
+            new JavaFXApp().start(new Stage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.controller.LoginDialog;
 import service.*;
 
 public class JavaFXApp extends Application {
@@ -15,6 +16,19 @@ public class JavaFXApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        SampleService sampleService = new SampleService();
+        ReportService reportService = new ReportService(sampleService);
+        ReportLineService reportLineService = new ReportLineService(reportService);
+        AuthService authService = new AuthService();
+
+        // ПОКАЗЫВАЕМ ОКНО ВХОДА
+        LoginDialog loginDialog = new LoginDialog(authService);
+        if (!loginDialog.showAndWait()) {
+            stage.close();
+            return;
+        }
+
+        // ЗАГРУЖАЕМ ГЛАВНОЕ ОКНО
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/javafx/main-view.fxml")
         );
@@ -23,17 +37,12 @@ public class JavaFXApp extends Application {
 
         javafx.controller.ReportTableController controller = loader.getController();
 
-        SampleService sampleService = new SampleService();
-        ReportService reportService = new ReportService(sampleService);
-        ReportLineService reportLineService = new ReportLineService(reportService);
-        AuthService authService = new AuthService();  // НОВОЕ
-
         Environment env = new Environment(
                 sampleService,
                 reportService,
                 reportLineService,
                 new java.util.Scanner(System.in),
-                authService  // НОВОЕ
+                authService
         );
         controller.setEnvironment(env);
 
