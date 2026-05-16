@@ -3,6 +3,7 @@ package cli.command;
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class RepSignCommand extends Command {
@@ -25,12 +26,16 @@ public class RepSignCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long id = Long.parseLong(args.get(0));
-        String currentUser = env.getAuthService().getCurrentUsername();
         if (!env.getAuthService().isAuthenticated()) {
             throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
         }
-        env.getReportService().signReport(id, currentUser);
-        System.out.println("OK report " + id + " SIGNED by " + currentUser);
+        String currentUser = env.getAuthService().getCurrentUsername();
+        try {
+            env.getReportService().signReport(id, currentUser);
+            System.out.println("OK report " + id + " SIGNED by " + currentUser);
+        } catch (SQLException e) {
+            throw new ValidationException("Ошибка базы данных: " + e.getMessage());
+        }
     }
 
     @Override

@@ -3,7 +3,6 @@ package cli.command;
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
-
 import java.util.List;
 
 public class LogoutCommand extends Command {
@@ -12,7 +11,7 @@ public class LogoutCommand extends Command {
         super(env);
     }
 
-    @Override //сервис аутентификации
+    @Override
     public void execute(List<String> args) throws ValidationException {
         if (!env.getAuthService().isAuthenticated()) {
             throw new ValidationException("Вы не авторизованы");

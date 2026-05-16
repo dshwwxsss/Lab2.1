@@ -7,7 +7,7 @@ import domain.ReportLine;
 import domain.ReportStatus;
 import validation.ReportLineValidator;
 import validation.ValidationException;
-
+import java.sql.SQLException;
 import java.util.List;
 
 public class RepAddLineCommand extends Command {
@@ -34,7 +34,6 @@ public class RepAddLineCommand extends Command {
     public void execute(List<String> args) throws ValidationException {
         long reportId = Long.parseLong(args.get(0));
 
-        // ПОЛУЧАЕМ currentUser ИЗ AuthService
         String currentUser = env.getAuthService().getCurrentUsername();
         if (currentUser == null) {
             throw new ValidationException("Ошибка: вы не авторизованы. Используйте команду 'login'");
@@ -94,8 +93,10 @@ public class RepAddLineCommand extends Command {
         try {
             var line = env.getReportLineService().addLine(reportId, param, value, unit, currentUser);
             System.out.println("OK line_id=" + line.getId());
+        } catch (SQLException e) {
+            throw new ValidationException("Ошибка базы данных: " + e.getMessage());
         } catch (ValidationException e) {
-            throw new ValidationException(e.getMessage());
+            throw e;
         }
     }
 

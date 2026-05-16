@@ -1,4 +1,4 @@
-package cli.command;
+/*package cli.command;
 
 import cli.Command;
 import cli.Environment;
@@ -51,4 +51,4 @@ public class LoadCommand extends Command {
     public String getHelp() {
         return "загрузить данные из CSV-файла";
     }
-}
+}*/

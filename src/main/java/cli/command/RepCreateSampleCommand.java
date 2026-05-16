@@ -3,6 +3,7 @@ package cli.command;
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class RepCreateSampleCommand extends Command {
@@ -25,10 +26,10 @@ public class RepCreateSampleCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long sampleId = Long.parseLong(args.get(0));
-        String currentUser = env.getAuthService().getCurrentUsername();
         if (!env.getAuthService().isAuthenticated()) {
             throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
         }
+        String currentUser = env.getAuthService().getCurrentUsername();
 
         if (!env.getSampleService().exists(sampleId)) {
             throw new ValidationException("Образец с id=" + sampleId + " не найден");
@@ -47,8 +48,14 @@ public class RepCreateSampleCommand extends Command {
             }
         }
 
-        var report = env.getReportService().createReport(name, sampleId, 0, currentUser);
-        System.out.println("OK report_id=" + report.getId());
+        try {
+            var report = env.getReportService().createReport(name, sampleId, 0, currentUser);
+            System.out.println("OK report_id=" + report.getId());
+        } catch (SQLException e) {
+            throw new ValidationException("Ошибка базы данных: " + e.getMessage());
+        } catch (ValidationException e) {
+            throw e;
+        }
     }
 
     @Override

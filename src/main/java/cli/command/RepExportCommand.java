@@ -1,9 +1,8 @@
-package cli.command; //выводит отчёт в текстовом виде (экспорт)
+package cli.command;
 
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
-
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;

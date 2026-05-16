@@ -1,8 +1,9 @@
-package cli.command; //изменяет строку
+package cli.command;
 
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class RepUpdateLineCommand extends Command {
@@ -27,17 +28,20 @@ public class RepUpdateLineCommand extends Command {
         }
     }
 
-    //выполнение команды
     @Override
     public void execute(List<String> args) throws ValidationException {
         long lineId = Long.parseLong(args.get(0));
+        if (!env.getAuthService().isAuthenticated()) {
+            throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+        }
+        String currentUser = env.getAuthService().getCurrentUsername();
         for (int i = 1; i < args.size(); i++) {
             String[] kv = args.get(i).split("=", 2);
-            String currentUser = env.getAuthService().getCurrentUsername();
-            if (!env.getAuthService().isAuthenticated()) {
-                throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
+            try {
+                env.getReportLineService().updateLine(lineId, kv[0], kv[1], currentUser);
+            } catch (SQLException e) {
+                throw new ValidationException("Ошибка базы данных: " + e.getMessage());
             }
-            env.getReportLineService().updateLine(lineId, kv[0], kv[1], currentUser);
         }
         System.out.println("OK");
     }

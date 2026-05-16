@@ -3,7 +3,6 @@ package cli.command;
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
-
 import java.util.List;
 
 public class LoginCommand extends Command {

@@ -3,6 +3,7 @@ package cli.command;
 import cli.Command;
 import cli.Environment;
 import validation.ValidationException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class RepDellineCommand extends Command {
@@ -25,12 +26,16 @@ public class RepDellineCommand extends Command {
     @Override
     public void execute(List<String> args) throws ValidationException {
         long lineId = Long.parseLong(args.get(0));
-        String currentUser = env.getAuthService().getCurrentUsername();
         if (!env.getAuthService().isAuthenticated()) {
             throw new ValidationException("Вы не авторизованы. Используйте команду 'login'");
         }
-        env.getReportLineService().deleteLine(lineId, currentUser);
-        System.out.println("OK deleted");
+        String currentUser = env.getAuthService().getCurrentUsername();
+        try {
+            env.getReportLineService().deleteLine(lineId, currentUser);
+            System.out.println("OK deleted");
+        } catch (SQLException e) {
+            throw new ValidationException("Ошибка базы данных: " + e.getMessage());
+        }
     }
 
     @Override

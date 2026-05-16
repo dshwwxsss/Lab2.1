@@ -1,4 +1,4 @@
-package cli.command;
+/*package cli.command;
 
 import cli.Command;
 import cli.Environment;
@@ -46,4 +46,4 @@ public class SaveCommand extends Command {
     public String getHelp() {
         return "сохранить данные в CSV-файл";
     }
-}
+}*/
