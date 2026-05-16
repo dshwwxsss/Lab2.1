@@ -37,7 +37,7 @@ public class ReportLineRepository {
     }
 
     public Optional<ReportLine> findById(long id) throws SQLException {
-        String sql = "SELECT id, report_id, param, value, unit, owner_username, created_at, updated_at FROM report_lines WHERE id = ?";
+        String sql = "SELECT id, report_id, param, value, unit, owner_username, created_at, updated_at FROM report_lines WHERE id = ?"; //плейсхолдер
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);

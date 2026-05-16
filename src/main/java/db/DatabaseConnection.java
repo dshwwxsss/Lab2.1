@@ -28,7 +28,7 @@ public class DatabaseConnection {
             throw new RuntimeException("Failed to load database driver", e);
         }
     }
-
+//когда нужно новое соежинение
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
