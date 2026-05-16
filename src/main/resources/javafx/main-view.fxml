@@ -16,7 +16,6 @@
     <ToolBar>
         <Button text="Обновить" onAction="#refreshTable"/>
         <Separator orientation="VERTICAL"/>
-        <Button text="Сохранить" onAction="#handleSave"/>
         <Separator orientation="VERTICAL"/>
         <Button text="Создать отчёт" onAction="#handleCreateReport"/>
         <Button text="Добавить строку" onAction="#handleAddLine"/>
@@ -29,6 +28,7 @@
     <!-- вторая строка, выпадающий список -->
     <ToolBar>
         <Button text="Редактировать название/образец" onAction="#handleEditReport"/>
+        <Button text="Создать образец" onAction="#handleCreateSample"/>
         <Button text="Удалить отчёт" onAction="#handleDeleteReport"/>
         <Button text="Удалить строку" onAction="#handleDeleteLine"/>
         <Separator orientation="VERTICAL"/>
