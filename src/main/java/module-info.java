@@ -1,8 +1,9 @@
 module ru.itmo.lab21 {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
-    opens javafx.controller to javafx.fxml; //разрешает JavaFX заглядывать внутрь твоего контроллера
+    opens javafx.controller to javafx.fxml;
 
     exports javafx;
 }

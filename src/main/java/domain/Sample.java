@@ -32,6 +32,6 @@ public final class Sample {
 
     @Override
     public String toString() {
-        return name + " (ID: " + id + ")";
+        return name;
     }
 }

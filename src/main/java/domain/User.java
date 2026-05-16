@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class User {
     private final String login;
-    private final String passwordHash; // хеш пароля
+    private final String passwordHash;
 
     public User(String login, String passwordHash) {
         this.login = login;

@@ -13,6 +13,7 @@ public final class ReportLine {
     private Instant updatedAt;
     private Instant createdAt;
 
+    // Конструктор для создания новой строки (без дат)
     public ReportLine(long id, long reportId, MeasurementParam param, double value, String unit, String ownerUsername) {
         this.id = id;
         this.reportId = reportId;
@@ -22,6 +23,19 @@ public final class ReportLine {
         this.ownerUsername = ownerUsername;
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
+    }
+
+    // Дополнительный конструктор для загрузки из БД (со всеми полями)
+    public ReportLine(long id, long reportId, MeasurementParam param, double value, String unit,
+                      String ownerUsername, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.reportId = reportId;
+        this.param = param;
+        this.value = value;
+        this.unit = unit;
+        this.ownerUsername = ownerUsername;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // Геттеры
@@ -53,5 +67,10 @@ public final class ReportLine {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return param + ": " + value + " " + unit;
     }
 }

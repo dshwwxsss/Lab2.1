@@ -14,6 +14,7 @@ public final class Report {
     private Instant createdAt;
     private Instant updatedAt;
 
+    // Конструктор для создания нового отчёта (без дат, статус DRAFT)
     public Report(long id, String name, long sampleId, long experimentId, String ownerUsername) {
         this.id = id;
         this.name = name;
@@ -24,6 +25,20 @@ public final class Report {
         this.signedBy = null;
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
+    }
+
+    // Дополнительный конструктор для загрузки из БД (со всеми полями)
+    public Report(long id, String name, long sampleId, long experimentId, String ownerUsername,
+                  ReportStatus status, String signedBy, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.sampleId = sampleId;
+        this.experimentId = experimentId;
+        this.ownerUsername = ownerUsername;
+        this.status = status;
+        this.signedBy = signedBy;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // Геттеры

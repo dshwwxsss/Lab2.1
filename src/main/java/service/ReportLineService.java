@@ -1,9 +1,10 @@
 package service;
 
 import domain.*;
+import db.ReportLineRepository;
 import validation.ReportLineValidator;
 import validation.ValidationException;
-
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
@@ -11,111 +12,77 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ReportLineService {
-    private final Set<ReportLine> lines = new HashSet<>();
-    private final ReportLineValidator validator;
+    private final ReportLineRepository repository;
     private final ReportService reportService;
+    private final Set<ReportLine> cache = new HashSet<>();
 
-    public ReportLineService(ReportService reportService) {
+    public ReportLineService(ReportLineRepository repository, ReportService reportService) throws SQLException {
+        this.repository = repository;
         this.reportService = reportService;
-        this.validator = new ReportLineValidator(reportService);
+        loadAllFromDb();
     }
 
-    private long generateId() {
-        return System.currentTimeMillis() + lines.size();
+    private void loadAllFromDb() throws SQLException {
+        cache.clear();
+        cache.addAll(repository.findAll());
     }
 
-    public ReportLine addLine(long reportId, MeasurementParam param, double value, String unit, String ownerUsername)
-            throws ValidationException {
-        ReportLine line = new ReportLine(generateId(), reportId, param, value, unit, ownerUsername);
-        validator.validate(line);
-        lines.add(line);
-        return line;
+    public ReportLine addLine(long reportId, MeasurementParam param, double value, String unit, String ownerUsername) throws ValidationException, SQLException {
+        Report report = reportService.getReport(reportId).orElseThrow(() -> new ValidationException("Отчёт не найден"));
+        if (report.getStatus() != ReportStatus.DRAFT) throw new ValidationException("Только черновик");
+        ReportLine line = new ReportLine(0, reportId, param, value, unit, ownerUsername, Instant.now(), Instant.now());
+        new ReportLineValidator(reportService).validate(line);
+        ReportLine saved = repository.save(line);
+        cache.add(saved);
+        return saved;
     }
 
     public Optional<ReportLine> getLine(long id) {
-        return lines.stream().filter(l -> l.getId() == id).findFirst();
+        return cache.stream().filter(l -> l.getId() == id).findFirst();
     }
 
     public Set<ReportLine> getLinesByReport(long reportId) {
-        return lines.stream().filter(l -> l.getReportId() == reportId).collect(Collectors.toSet());
+        return cache.stream().filter(l -> l.getReportId() == reportId).collect(Collectors.toSet());
     }
 
-    public void updateLine(long id, String field, String value, String currentUser) throws ValidationException {
-        ReportLine line = getLine(id)
-                .orElseThrow(() -> new ValidationException("Строка с id=" + id + " не найдена"));
+    public void updateLine(long id, String field, String value, String currentUser) throws ValidationException, SQLException {
+        ReportLine line = getLine(id).orElseThrow(() -> new ValidationException("Строка не найдена"));
+        if (!line.getOwnerUsername().equals(currentUser)) throw new ValidationException("Нет прав");
+        Report report = reportService.getReport(line.getReportId()).orElseThrow(() -> new ValidationException("Отчёт не найден"));
+        if (report.getStatus() != ReportStatus.DRAFT) throw new ValidationException("Только черновик");
 
-        if (!line.getOwnerUsername().equals(currentUser)) {
-            throw new ValidationException("Ошибка: у вас нет прав на редактирование этой строки");
-        }
-
-        Report report = reportService.getReport(line.getReportId())
-                .orElseThrow(() -> new ValidationException("Отчёт не найден"));
-        if (report.getStatus() != ReportStatus.DRAFT) {
-            throw new ValidationException("Редактировать строки можно только у черновика (DRAFT)");
-        }
-
-        ReportLine updated = new ReportLine(
-                line.getId(),
-                line.getReportId(),
-                line.getParam(),
-                line.getValue(),
-                line.getUnit(),
-                line.getOwnerUsername()
-        );
+        ReportLine updated = new ReportLine(line.getId(), line.getReportId(), line.getParam(), line.getValue(), line.getUnit(), line.getOwnerUsername(), line.getCreatedAt(), line.getUpdatedAt());
         updated.setUpdatedAt(Instant.now());
 
         switch (field) {
             case "param":
-                try {
-                    updated.setParam(MeasurementParam.valueOf(value.toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                    throw new ValidationException("Неизвестный параметр. Допустимые: PH, CONDUCTIVITY, TEMPERATURE");
-                }
+                updated.setParam(MeasurementParam.valueOf(value.toUpperCase()));
                 break;
             case "value":
-                try {
-                    updated.setValue(Double.parseDouble(value));
-                } catch (NumberFormatException e) {
-                    throw new ValidationException("Значение должно быть числом");
-                }
+                updated.setValue(Double.parseDouble(value));
                 break;
             case "unit":
-                if (value == null || value.trim().isEmpty())
-                    throw new ValidationException("Единицы не могут быть пустыми");
+                if (value == null || value.trim().isEmpty()) throw new ValidationException("Единицы не могут быть пустыми");
                 updated.setUnit(value);
                 break;
             default:
-                throw new ValidationException("Нельзя менять поле '" + field + "'");
+                throw new ValidationException("Нельзя менять поле " + field);
         }
-
-        validator.validate(updated);
-        lines.remove(line);
-        lines.add(updated);
+        new ReportLineValidator(reportService).validate(updated);
+        repository.update(updated);
+        syncCache();
     }
 
-    public void deleteLine(long id, String currentUser) throws ValidationException {
-        ReportLine line = getLine(id)
-                .orElseThrow(() -> new ValidationException("Строка с id=" + id + " не найдена"));
-
-        if (!line.getOwnerUsername().equals(currentUser)) {
-            throw new ValidationException("Ошибка: у вас нет прав на удаление этой строки");
-        }
-
-        Report report = reportService.getReport(line.getReportId())
-                .orElseThrow(() -> new ValidationException("Отчёт не найден"));
-
-        if (report.getStatus() != ReportStatus.DRAFT) {
-            throw new ValidationException("Удалять строки можно только у черновика (DRAFT)");
-        }
-        lines.remove(line);
+    public void deleteLine(long id, String currentUser) throws ValidationException, SQLException {
+        ReportLine line = getLine(id).orElseThrow(() -> new ValidationException("Строка не найдена"));
+        if (!line.getOwnerUsername().equals(currentUser)) throw new ValidationException("Нет прав");
+        Report report = reportService.getReport(line.getReportId()).orElseThrow(() -> new ValidationException("Отчёт не найден"));
+        if (report.getStatus() != ReportStatus.DRAFT) throw new ValidationException("Только черновик");
+        repository.deleteById(id);
+        cache.remove(line);
     }
 
-    public void replaceAll(Set<ReportLine> newLines) {
-        lines.clear();
-        lines.addAll(newLines);
-    }
-
-    public Set<ReportLine> getAllLines() {
-        return new HashSet<>(lines);
+    public void syncCache() throws SQLException {
+        loadAllFromDb();
     }
 }
