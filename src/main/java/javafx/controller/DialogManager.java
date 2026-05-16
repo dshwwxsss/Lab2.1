@@ -19,10 +19,14 @@ public class DialogManager {
 
     //Запросить подтверждение действия (кнопки Да/Нет)
     public static boolean showConfirm(String message) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message);
         alert.setTitle("Подтверждение");
         alert.setHeaderText(null);
-        return alert.showAndWait().filter(r -> r == ButtonType.YES).isPresent();
+        ButtonType yesButton = new ButtonType("Да", ButtonBar.ButtonData.OK_DONE);
+        ButtonType noButton = new ButtonType("Нет", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        return alert.showAndWait().filter(r -> r == yesButton).isPresent();
     }
 
     //Получить строку от пользователя (текстовое поле)

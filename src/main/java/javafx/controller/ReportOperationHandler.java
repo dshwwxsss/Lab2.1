@@ -6,6 +6,7 @@ import service.ReportLineService;
 import service.ReportService;
 import service.SampleService;
 import validation.ValidationException;
+import java.sql.SQLException;
 
 public class ReportOperationHandler {
     private final ReportService reportService;
@@ -33,20 +34,38 @@ public class ReportOperationHandler {
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
             return null;
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
+            return null;
         }
     }
 
     public void editReport(Report report, String currentUser) {
         if (report == null) return;
-        String newName = DialogManager.showTextInput("Редактирование названия", "Новое название:", report.getName());
-        if (newName == null || newName.trim().isEmpty()) {
-            DialogManager.showAlert("Ошибка", "Название не может быть пустым");
-            return;
-        }
+
+        // Показываем выбор: что изменить
+        String[] options = {"Название", "Образец"};
+        String choice = DialogManager.showChoice("Что изменить?", options);
+        if (choice == null) return;
+
         try {
-            reportService.editReportName(report.getId(), newName, currentUser);
-            DialogManager.showAlert("Успех", "Название изменено");
-        } catch (ValidationException e) {
+            if (choice.equals("Название")) {
+                String newName = DialogManager.showTextInput("Редактирование названия", "Новое название:", report.getName());
+                if (newName == null || newName.trim().isEmpty()) {
+                    DialogManager.showAlert("Ошибка", "Название не может быть пустым");
+                    return;
+                }
+                reportService.editReportName(report.getId(), newName, currentUser);
+                DialogManager.showAlert("Успех", "Название изменено");
+            } else {
+                // Изменение образца
+                Sample newSample = DialogManager.showSampleChoice(sampleService.getSamples(), "Выберите новый образец");
+                if (newSample == null) return;
+
+                reportService.editReportSample(report.getId(), newSample.getId(), currentUser);
+                DialogManager.showAlert("Успех", "Образец изменён на: " + newSample.getName());
+            }
+        } catch (ValidationException | SQLException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
         }
     }
@@ -59,6 +78,8 @@ public class ReportOperationHandler {
             DialogManager.showAlert("Успех", "Отчёт удалён");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
         }
     }
 
@@ -69,6 +90,8 @@ public class ReportOperationHandler {
             DialogManager.showAlert("Успех", "Отчёт переведён в статус FINAL");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
         }
     }
 
@@ -79,6 +102,8 @@ public class ReportOperationHandler {
             DialogManager.showAlert("Успех", "Отчёт подписан (SIGNED)");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
         }
     }
 

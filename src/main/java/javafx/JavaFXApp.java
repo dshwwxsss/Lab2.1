@@ -1,12 +1,16 @@
 package javafx;
 
 import cli.Environment;
+import db.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.controller.LoginDialog;
 import service.*;
+import javafx.controller.DialogManager;
+import java.sql.SQLException;
+import java.util.Scanner;
 
 public class JavaFXApp extends Application {
 
@@ -15,37 +19,51 @@ public class JavaFXApp extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
-        SampleService sampleService = new SampleService();
-        ReportService reportService = new ReportService(sampleService);
-        ReportLineService reportLineService = new ReportLineService(reportService);
-        AuthService authService = new AuthService();
-        LoginDialog loginDialog = new LoginDialog(authService); // окно входа
-        if (!loginDialog.showAndWait()) {
-            stage.close();
-            return;
+    public void start(Stage primaryStage) throws Exception {
+        try {
+            // Создаём сервисы
+            db.SampleRepository sampleRepository = new db.SampleRepository();
+            service.SampleService sampleService = new service.SampleService(sampleRepository);
+
+            db.ReportRepository reportRepository = new db.ReportRepository();
+            service.ReportService reportService = new service.ReportService(reportRepository, sampleService);
+
+            db.ReportLineRepository reportLineRepository = new db.ReportLineRepository();
+            service.ReportLineService reportLineService = new service.ReportLineService(reportLineRepository, reportService);
+
+            service.AuthService authService = new service.AuthService();
+
+            javafx.controller.LoginDialog loginDialog = new javafx.controller.LoginDialog(authService);
+            if (!loginDialog.showAndWait()) {  // ← ← ← без аргументов!
+                primaryStage.close();
+                return;
+            }
+
+            // Загружаем FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/javafx/main-view.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.controller.ReportTableController controller = loader.getController();
+
+            cli.Environment env = new cli.Environment(
+                    sampleService,
+                    reportService,
+                    reportLineService,
+                    new java.util.Scanner(System.in),
+                    authService
+            );
+            controller.setEnvironment(env);
+
+            primaryStage.setTitle("Лабораторная работа 2.1 - Отчёты");
+            primaryStage.setScene(new javafx.scene.Scene(root, 1200, 700));
+            primaryStage.show();
+
+        } catch (Exception e) {
+            javafx.controller.DialogManager.showAlert(
+                    "Ошибка запуска",
+                    "Не удалось запустить приложение:\n" + e.getMessage()
+            );
+            e.printStackTrace();
         }
-
-        // загружаем главное
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/javafx/main-view.fxml")
-        );
-
-        Scene scene = new Scene(loader.load(), 1200, 700);
-
-        javafx.controller.ReportTableController controller = loader.getController();
-
-        Environment env = new Environment(
-                sampleService,
-                reportService,
-                reportLineService,
-                new java.util.Scanner(System.in),
-                authService
-        );
-        controller.setEnvironment(env);
-
-        stage.setTitle("Лабораторная работа 2.1 - Отчёты");
-        stage.setScene(scene);
-        stage.show();
     }
 }

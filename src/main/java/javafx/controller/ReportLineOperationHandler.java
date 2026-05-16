@@ -3,6 +3,8 @@ package javafx.controller;
 import domain.*;
 import service.ReportLineService;
 import validation.ValidationException;
+import java.sql.SQLException;
+import java.util.Objects;
 
 public class ReportLineOperationHandler {
     private final ReportLineService reportLineService;
@@ -13,6 +15,13 @@ public class ReportLineOperationHandler {
 
     public void addLine(Report report, String currentUser) {
         if (report == null) return;
+
+        if (!Objects.equals(report.getOwnerUsername(), currentUser)) {
+            DialogManager.showAlert("Ошибка",
+                    "Нельзя добавлять строки в чужой отчёт.\nВладелец: " + report.getOwnerUsername());
+            return;
+        }
+
         if (report.getStatus() != ReportStatus.DRAFT) {
             DialogManager.showAlert("Ошибка", "Строки можно добавлять только в черновик (DRAFT)");
             return;
@@ -62,12 +71,13 @@ public class ReportLineOperationHandler {
 
         try {
             ReportLine line = reportLineService.addLine(report.getId(), param, value, unit, currentUser);
-            DialogManager.showAlert("Успех", "Строка добавлена: ID=" + line.getId());
+            DialogManager.showAlert("Успех", "Строка добавлена");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
         }
     }
-
     public void deleteLine(Report report, String currentUser) {
         if (report == null) return;
         var lines = reportLineService.getLinesByReport(report.getId());
@@ -82,6 +92,8 @@ public class ReportLineOperationHandler {
             DialogManager.showAlert("Успех", "Строка удалена");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
         }
     }
 
@@ -137,6 +149,8 @@ public class ReportLineOperationHandler {
             DialogManager.showAlert("Успех", "Строка обновлена");
         } catch (ValidationException e) {
             DialogManager.showAlert("Ошибка", e.getMessage());
+        } catch (SQLException e) {
+            DialogManager.showAlert("Ошибка базы данных", e.getMessage());
         }
     }
 

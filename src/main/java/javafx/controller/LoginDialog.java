@@ -1,18 +1,18 @@
-package javafx.controller; //создаёт модальное окно входа/регистрации
+package javafx.controller;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import service.AuthService;
 import validation.ValidationException;
 
 public class LoginDialog {
 
-    private AuthService authService;
-    private Stage stage;
+    private final AuthService authService;
     private boolean loginSuccess = false;
 
     public LoginDialog(AuthService authService) {
@@ -20,89 +20,118 @@ public class LoginDialog {
     }
 
     public boolean showAndWait() {
-        stage = new Stage();
-        stage.setTitle("Авторизация");
-        stage.setResizable(false); //изменение размера
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Авторизация");
+        dialog.setResizable(false);
 
-        TextField loginField = new TextField(); //одностр текст поле
+        TextField loginField = new TextField();
         loginField.setPromptText("Логин");
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Пароль");
 
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+        errorLabel.setVisible(false);
+        errorLabel.setWrapText(true);
+        errorLabel.setMaxWidth(250);
+
         Button loginButton = new Button("Вход");
         Button registerButton = new Button("Регистрация");
         Button cancelButton = new Button("Отмена");
+        cancelButton.setOnAction(e -> dialog.close());
 
         GridPane grid = new GridPane();
-        grid.setPadding(new Insets(10));
+        grid.setPadding(new Insets(15));
         grid.setHgap(10);
         grid.setVgap(10);
         grid.add(new Label("Логин:"), 0, 0);
         grid.add(loginField, 1, 0);
         grid.add(new Label("Пароль:"), 0, 1);
         grid.add(passwordField, 1, 1);
+        grid.add(errorLabel, 1, 2);
 
         VBox buttonBox = new VBox(10, loginButton, registerButton, cancelButton);
-        buttonBox.setPadding(new Insets(10)); // внешние отступы
+        buttonBox.setPadding(new Insets(0, 15, 15, 15));
 
         VBox root = new VBox(10, grid, buttonBox);
         root.setPadding(new Insets(10));
-        Scene scene = new Scene(root, 300, 250);
-        stage.setScene(scene); //прикрепляем сцену к окну
+        Scene scene = new Scene(root, 320, 220);
+        dialog.setScene(scene);
 
-        loginButton.setOnAction(e -> handleLogin(loginField.getText(), passwordField.getText()));  //лямбда выражение, код, который нужно выполнить (тело), краткая запись функционального интерфейса EventHandler
-        registerButton.setOnAction(e -> handleRegister(loginField.getText(), passwordField.getText()));
-        cancelButton.setOnAction(e -> { //"отмена"
-            loginSuccess = false;
-            stage.close();
+        loginButton.setDefaultButton(true);
+        loginButton.setOnAction(e -> {
+            errorLabel.setVisible(false);
+            handleLogin(loginField.getText(), passwordField.getText(), errorLabel, dialog);
         });
 
-        stage.showAndWait();
+        registerButton.setOnAction(e -> {
+            errorLabel.setVisible(false);
+            handleRegister(loginField.getText(), passwordField.getText(), errorLabel, dialog);
+        });
+
+        scene.setOnKeyPressed(ke -> {
+            if (ke.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                dialog.close();
+            }
+        });
+
+        dialog.showAndWait();
         return loginSuccess;
     }
 
-    private void handleLogin(String login, String password) {
+    private void handleLogin(String login, String password, Label errorLabel, Stage dialog) {
+        if (login.isEmpty() || password.isEmpty()) {
+            showError(errorLabel, "Логин и пароль не могут быть пустыми");
+            return;
+        }
         try {
-            authService.login(login, password); // хранится ссылка на сервис аутентификации
+            authService.login(login, password);
             loginSuccess = true;
-            stage.close();
+            dialog.close();
         } catch (ValidationException e) {
-            showAlert("Ошибка входа", e.getMessage());
+            showError(errorLabel, e.getMessage());
+        } catch (Exception e) {  // ← ← ← Ловим всё остальное
+            showError(errorLabel, "Ошибка: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void handleRegister(String login, String password) {
-        if (login.trim().isEmpty() || password.trim().isEmpty()) {
-            showAlert("Ошибка", "Логин и пароль не могут быть пустыми");
+    private void handleRegister(String login, String password, Label errorLabel, Stage dialog) {
+        if (login.isEmpty() || password.isEmpty()) {
+            showError(errorLabel, "Логин и пароль не могут быть пустыми");
             return;
         }
 
-        TextInputDialog confirmDialog = new TextInputDialog(); //ok/cancel и поле
-        confirmDialog.setTitle("Подтверждение");
-        confirmDialog.setHeaderText("Повторите пароль"); //под заголовком
-        confirmDialog.setContentText("Пароль:"); //над полем
+        TextInputDialog confirmDialog = new TextInputDialog();
+        confirmDialog.initOwner(dialog);
+        confirmDialog.setTitle("Подтверждение пароля");
+        confirmDialog.setHeaderText("Повторите пароль");
+        confirmDialog.setContentText("Пароль:");
 
-        String confirmPassword = confirmDialog.showAndWait().orElse(null); //ждем, возвращаем контейнер, объявляем переменную для хранения введённого пароля
-        if (confirmPassword == null || !confirmPassword.equals(password)) {
-            showAlert("Ошибка", "Пароли не совпадают");
+        String confirmPassword = confirmDialog.showAndWait().orElse(null);
+        if (confirmPassword == null) return;
+        if (!confirmPassword.equals(password)) {
+            showError(errorLabel, "Пароли не совпадают");
             return;
         }
 
         try {
             authService.register(login, password);
-            showAlert("Успех", "Пользователь " + login + " зарегистрирован!");
-            authService.login(login, password); //автоматически выполняем вход
+            DialogManager.showAlert("Успех", "Пользователь " + login + " зарегистрирован!");
+            authService.login(login, password);
             loginSuccess = true;
-            stage.close();
+            dialog.close();
         } catch (ValidationException e) {
-            showAlert("Ошибка регистрации", e.getMessage());
+            showError(errorLabel, e.getMessage());
+        } catch (Exception e) {  // ← ← ← Ловим всё остальное
+            showError(errorLabel, "Ошибка: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, message); // класс JavaFX для стандартных диалогов (с иконками)
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.showAndWait();
+    private void showError(Label errorLabel, String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
     }
 }

@@ -26,7 +26,6 @@ public class ReportTableController {
     private ReportTableViewManager tableManager;
     private ReportOperationHandler reportOps;
     private ReportLineOperationHandler lineOps;
-    private FileOperationHandler fileOps;
     private ReportService reportService;
     private ReportLineService reportLineService;
     private SampleService sampleService;
@@ -39,32 +38,20 @@ public class ReportTableController {
         this.sampleService = env.getSampleService();
         this.env = env;
 
-        // Получаем текущего пользователя из AuthService
         if (env.getAuthService().isAuthenticated()) {
             this.currentUser = env.getAuthService().getCurrentUsername();
             userLabel.setText("Пользователь: " + currentUser);
         }
 
-        // Инициализация менеджеров и хендлеров
         this.tableManager = new ReportTableViewManager(tableView, sampleService);
         this.reportOps = new ReportOperationHandler(reportService, sampleService);
         this.lineOps = new ReportLineOperationHandler(reportLineService);
-        this.fileOps = new FileOperationHandler(sampleService, reportService, reportLineService,
-                progressBar, this::updateTableFromServices);
 
-        // Загружаем данные из файла (асинхронно)
-        if (fileOps != null) {
-            fileOps.loadFromFile();
-        } else {
-            System.err.println("Ошибка: fileOps не инициализирован");
-        }
-
-        // Настройка фильтра
         filterComboBox.getItems().addAll("Все", "DRAFT", "FINAL", "SIGNED");
         filterComboBox.setValue("Все");
         filterComboBox.setOnAction(e -> applyFilter());
 
-        // Не вызываем updateTableFromServices() сразу, т.к. loadFromFile() обновит таблицу
+        updateTableFromServices();
     }
 
     private void applyFilter() {
@@ -111,19 +98,29 @@ public class ReportTableController {
         applyFilterAndSearch();
     }
 
-    @FXML private void refreshTable() {
-        if (fileOps != null) {
-            fileOps.loadFromFile();
-        } else {
-            DialogManager.showAlert("Ошибка", "Не удалось обновить таблицу");
-        }
-    }
+    @FXML
+    private void refreshTable() {
+        try {
+            // Перечитываем данные из базы данных
+            if (progressBar != null) progressBar.setProgress(-1);
+            if (statusLabel != null) statusLabel.setText("Обновление...");
 
-    @FXML private void handleSave() {
-        if (fileOps != null) {
-            fileOps.saveToFile();
-        } else {
-            DialogManager.showAlert("Ошибка", "Не удалось сохранить данные");
+            // Синхронизируем кэш с базой данных
+            sampleService.syncCache();
+            reportService.syncCache();
+            reportLineService.syncCache();
+
+            // Обновляем таблицу
+            applyFilterAndSearch();
+
+            if (progressBar != null) progressBar.setProgress(0);
+            if (statusLabel != null) statusLabel.setText(
+                    "Отчётов: " + reportService.getAllReports().size());
+
+        } catch (Exception e) {
+            DialogManager.showAlert("Ошибка обновления",
+                    "Не удалось обновить данные:\n" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -168,6 +165,19 @@ public class ReportTableController {
     @FXML private void handleDeleteLine() {
         lineOps.deleteLine(tableManager.getSelectedReport(), currentUser);
         updateTableFromServices();
+    }
+
+    @FXML
+    private void handleCreateSample() {
+        String name = DialogManager.showTextInput("Новый образец", "Название:", "");
+        if (name == null || name.isBlank()) return;
+
+        try {
+            var sample = sampleService.addSample(name, currentUser);
+            DialogManager.showAlert("Успех", "Образец создан: ID=" + sample.getId());
+        } catch (Exception e) {
+            DialogManager.showAlert("Ошибка", e.getMessage());
+        }
     }
 
     @FXML private void handleFinalize() {
