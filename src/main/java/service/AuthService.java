@@ -2,19 +2,23 @@ package service;
 
 import domain.User;
 import db.UserStorage;
+import db.RoleRepository;
 import validation.AuthValidator;
 import validation.ValidationException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.Optional;
+import java.util.*;
 
 public class AuthService {
     private UserStorage userStorage;
+    private RoleRepository roleRepository;
     private User currentUser;
+    private List<String> currentUserRoles;
 
     public AuthService() {
         this.userStorage = new UserStorage();
+        this.roleRepository = new RoleRepository();
     }
 
     public static String hashPassword(String password) {
@@ -41,6 +45,7 @@ public class AuthService {
             String passwordHash = hashPassword(password);
             User user = new User(login, passwordHash);
             userStorage.save(user);
+            roleRepository.assignRoleToUser(login, "USER");
         } catch (SQLException e) {
             throw new ValidationException("Ошибка базы данных: " + e.getMessage());
         }
@@ -60,7 +65,10 @@ public class AuthService {
                 throw new ValidationException("Ошибка: неверный пароль");
             }
             this.currentUser = user;
-            System.out.println("OK: Добро пожаловать, " + login + "!");
+            this.currentUserRoles = roleRepository.findRolesByUser(login).stream()
+                    .map(r -> r.getName())
+                    .toList();
+            System.out.println("OK: Добро пожаловать, " + login + "! Роли: " + currentUserRoles);
         } catch (SQLException e) {
             throw new ValidationException("Ошибка базы данных: " + e.getMessage());
         }
@@ -68,6 +76,7 @@ public class AuthService {
 
     public void logout() {
         this.currentUser = null;
+        this.currentUserRoles = null;
         System.out.println("OK: Вы вышли из системы");
     }
 
@@ -81,5 +90,19 @@ public class AuthService {
 
     public String getCurrentUsername() {
         return currentUser != null ? currentUser.getLogin() : null;
+    }
+//новые поля
+    public boolean hasRole(String roleName) {
+        return currentUserRoles != null && currentUserRoles.contains(roleName);
+    }
+
+    public boolean isAdmin() {
+        return hasRole("ADMIN");
+    }
+
+    public boolean canModify(String objectOwner) {
+        if (currentUser == null) return false;
+        if (isAdmin()) return true;
+        return currentUser.getLogin().equals(objectOwner);
     }
 }

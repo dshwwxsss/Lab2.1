@@ -19,12 +19,11 @@ public class JavaFXApp extends Application {
             service.SampleService sampleService = new service.SampleService(sampleRepository);
 
             db.ReportRepository reportRepository = new db.ReportRepository();
-            service.ReportService reportService = new service.ReportService(reportRepository, sampleService);
+            service.AuthService authService = new service.AuthService();   // создаём
+            service.ReportService reportService = new service.ReportService(reportRepository, sampleService, authService);
 
             db.ReportLineRepository reportLineRepository = new db.ReportLineRepository();
-            service.ReportLineService reportLineService = new service.ReportLineService(reportLineRepository, reportService);
-
-            service.AuthService authService = new service.AuthService();
+            service.ReportLineService reportLineService = new service.ReportLineService(reportLineRepository, reportService, authService);
 
             javafx.controller.LoginDialog loginDialog = new javafx.controller.LoginDialog(authService);
             if (!loginDialog.showAndWait()) {
@@ -32,7 +31,6 @@ public class JavaFXApp extends Application {
                 return;
             }
 
-            // Загружаем FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/javafx/main-view.fxml"));
             javafx.scene.Parent root = loader.load();
 

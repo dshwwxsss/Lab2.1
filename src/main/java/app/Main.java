@@ -9,21 +9,18 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // ждем пока база данных не станет доступна
         DatabaseConnection.waitForDatabase();
 
         try {
-            // Репозитории
             SampleRepository sampleRepository = new SampleRepository();
             SampleService sampleService = new SampleService(sampleRepository);
 
             ReportRepository reportRepository = new ReportRepository();
-            ReportService reportService = new ReportService(reportRepository, sampleService);
+            AuthService authService = new AuthService();          // создаём раньше
+            ReportService reportService = new ReportService(reportRepository, sampleService, authService);
 
             ReportLineRepository reportLineRepository = new ReportLineRepository();
-            ReportLineService reportLineService = new ReportLineService(reportLineRepository, reportService);
-
-            AuthService authService = new AuthService();
+            ReportLineService reportLineService = new ReportLineService(reportLineRepository, reportService, authService);
 
             Scanner scanner = new Scanner(System.in);
             Environment env = new Environment(sampleService, reportService, reportLineService, scanner, authService);
@@ -31,7 +28,6 @@ public class Main {
             CommandRegistry registry = new CommandRegistry();
             CommandInterpreter interpreter = new CommandInterpreter(registry, env, scanner);
 
-            // Регистрация команд (только тех, что остались, без save/load)
             registry.register("help", new HelpCommand(env, registry));
             registry.register("exit", new ExitCommand(env, interpreter));
             registry.register("sample_list", new SampleListCommand(env));
