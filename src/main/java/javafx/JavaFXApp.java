@@ -1,16 +1,10 @@
 package javafx;
 
-import cli.Environment;
 import db.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.controller.LoginDialog;
 import service.*;
-import javafx.controller.DialogManager;
-import java.sql.SQLException;
-import java.util.Scanner;
 
 public class JavaFXApp extends Application {
 
@@ -21,7 +15,6 @@ public class JavaFXApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         try {
-            // Создаём сервисы
             db.SampleRepository sampleRepository = new db.SampleRepository();
             service.SampleService sampleService = new service.SampleService(sampleRepository);
 
@@ -34,7 +27,7 @@ public class JavaFXApp extends Application {
             service.AuthService authService = new service.AuthService();
 
             javafx.controller.LoginDialog loginDialog = new javafx.controller.LoginDialog(authService);
-            if (!loginDialog.showAndWait()) {  // ← ← ← без аргументов!
+            if (!loginDialog.showAndWait()) {
                 primaryStage.close();
                 return;
             }

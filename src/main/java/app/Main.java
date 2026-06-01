@@ -9,6 +9,9 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        // ждем пока база данных не станет доступна
+        DatabaseConnection.waitForDatabase();
+
         try {
             // Репозитории
             SampleRepository sampleRepository = new SampleRepository();

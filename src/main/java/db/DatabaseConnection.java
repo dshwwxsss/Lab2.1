@@ -28,8 +28,26 @@ public class DatabaseConnection {
             throw new RuntimeException("Failed to load database driver", e);
         }
     }
-//когда нужно новое соежинение
+
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    // ждёт пока бд не станет доступной
+    public static void waitForDatabase() {
+        while (true) {
+            try (Connection conn = getConnection()) {
+                System.out.println("Подключение к базе данных установлено.");
+                return;
+            } catch (SQLException e) {
+                System.err.println("База данных недоступна. Ждём 5 секунд перед следующей попыткой...");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Ожидание подключения было прервано", ie);
+                }
+            }
+        }
     }
 }

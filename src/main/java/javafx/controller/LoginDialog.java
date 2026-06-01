@@ -56,7 +56,7 @@ public class LoginDialog {
 
         VBox root = new VBox(10, grid, buttonBox);
         root.setPadding(new Insets(10));
-        Scene scene = new Scene(root, 320, 220);
+        Scene scene = new Scene(root, 320, 250);
         dialog.setScene(scene);
 
         loginButton.setDefaultButton(true);
